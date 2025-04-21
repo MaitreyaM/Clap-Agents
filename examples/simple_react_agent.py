@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from clap import ReactAgent, tool, GroqService
 
 
-# --- Setup ---
 load_dotenv() 
 @tool
 def get_word_length(word: str) -> int:
