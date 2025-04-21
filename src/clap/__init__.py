@@ -1,6 +1,4 @@
-# --- Example content for src/clap/__init__.py ---
 
-# Import key classes/functions from submodules to make them accessible at the top level
 
 # Multi-agent pattern
 from .multiagent_pattern.agent import Agent
@@ -45,13 +43,9 @@ __all__ = [
     "MCPClientManager",
     "SseServerConfig", # Expose config type
 
-    # Selected Tools (example)
     "duckduckgo_search",
-    # Add others from .tools if desired as part of the core offering
 ]
 
-# You might also want to define a package-level version variable here
-# (though often handled by build tools or version files)
+
 # __version__ = "0.1.0"
 
-# --- End of src/clap/__init__.py ---
