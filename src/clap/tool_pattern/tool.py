@@ -167,10 +167,9 @@ class Tool:
         """
         parameter_schema = self.fn_schema.get("function", {}).get("parameters", {})
 
-        # --- Use jsonschema for validation ---
+        # Json schema validation
         try:
             # Validate the incoming arguments against the parameter schema
-            # Note: jsonschema validates, it doesn't coerce types like the old function
             jsonschema.validate(instance=kwargs, schema=parameter_schema)
             # If validation passes, kwargs are structurally correct according to schema
 
@@ -186,9 +185,9 @@ class Tool:
         except Exception as e: # Catch other potential validation setup errors
              print(f"An unexpected error occurred during argument validation for tool {self.name}: {e}")
              return f"Error: Argument validation failed."
-        # --- End jsonschema validation ---
+       
 
-        # --- Execute the function (sync or async) ---
+       
         try:
             if inspect.iscoroutinefunction(self.fn):
                 return await self.fn(**validated_kwargs)
@@ -196,9 +195,7 @@ class Tool:
                 func_with_args = functools.partial(self.fn, **validated_kwargs)
                 return await anyio.to_thread.run_sync(func_with_args)
         except Exception as e:
-             # Catch errors during the actual tool execution
              print(f"Error executing tool {self.name}: {e}")
-             # Consider logging traceback here
              return f"Error executing tool: {e}"
 
 
