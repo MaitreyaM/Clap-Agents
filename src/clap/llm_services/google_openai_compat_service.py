@@ -1,11 +1,9 @@
-# --- START OF agentic_patterns/llm_services/google_openai_compat_service.py ---
 
 import os
 import json
 import uuid 
 from typing import Any, Dict, List, Optional
 
-# Import the OpenAI library
 try:
     from openai import AsyncOpenAI, OpenAIError
 except ImportError:
@@ -13,10 +11,8 @@ except ImportError:
 
 from colorama import Fore
 
-# Import the base interface and response structures
 from .base import LLMServiceInterface, StandardizedLLMResponse, LLMToolCall
 
-# Google's OpenAI-compatible endpoint
 GOOGLE_COMPAT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 class GoogleOpenAICompatService(LLMServiceInterface):
