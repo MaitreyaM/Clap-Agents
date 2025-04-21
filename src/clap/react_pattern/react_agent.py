@@ -53,7 +53,7 @@ class ReactAgent:
     def __init__(
         self,
         llm_service: LLMServiceInterface,
-        model: str, # Still need model name to pass TO the service
+        model: str, 
         tools: Optional[List[Tool]] = None,
         mcp_manager: Optional[MCPClientManager] = None,
         mcp_server_names: Optional[List[str]] = None,
@@ -86,7 +86,7 @@ class ReactAgent:
                 if isinstance(result, list):
                     for tool in result:
                         if isinstance(tool, mcp_types.Tool):
-                           if tool.name in self.local_tools_dict: continue # Skip conflicts
+                           if tool.name in self.local_tools_dict: continue 
                            if tool.name in self.remote_tools_dict: continue # Skip conflicts
                            self.remote_tools_dict[tool.name] = tool
                            self.remote_tool_server_map[tool.name] = server_name
@@ -96,7 +96,7 @@ class ReactAgent:
         print(f"{Fore.BLUE}Total tools available to LLM: {len(all_schemas)}{Fore.RESET}")
         return all_schemas
 
-    async def process_tool_calls(self, tool_calls: List[LLMToolCall]) -> Dict[str, Any]: # Type hint changed
+    async def process_tool_calls(self, tool_calls: List[LLMToolCall]) -> Dict[str, Any]:
         observations = {}
         if not isinstance(tool_calls, list):
              print(f"{Fore.RED}Error: Expected a list of LLMToolCall, got {type(tool_calls)}{Fore.RESET}")
@@ -200,11 +200,10 @@ class ReactAgent:
                      print(f"{Fore.MAGENTA}\nThought: {extracted_thought}{Fore.RESET}")
                  if response_lines:
                       potential_final_response = "\n".join(response_lines).strip()
-                 # --- End prefix parsing ---
 
             assistant_msg_dict: Dict[str, Any] = {"role": "assistant"}
             if assistant_content:
-                assistant_msg_dict["content"] = assistant_content # Store original content with prefixes
+                assistant_msg_dict["content"] = assistant_content 
             if llm_response.tool_calls:
                  assistant_msg_dict["tool_calls"] = [
                      {
