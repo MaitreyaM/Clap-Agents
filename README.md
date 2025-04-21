@@ -14,7 +14,7 @@
 Built with an asynchronous core (`asyncio`), CLAP offers flexibility and performance for complex agentic workflows.
 
 <p align="center">
-  <img src="PIPCLAP.png" alt="CLAP Logo" width="200"/>
+  <img src="PIP CLAP.png" alt="CLAP Logo" width="200"/>
 </p>
 
 
