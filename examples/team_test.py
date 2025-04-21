@@ -1,4 +1,3 @@
-# --- START OF MODIFIED team_agent.py ---
 
 import os
 import asyncio # Import asyncio
