@@ -1,29 +1,23 @@
-# --- START OF agentic_patterns/mcp_client/client.py (SSE Version) ---
+
 
 import asyncio
 import json
 from contextlib import AsyncExitStack
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, HttpUrl # Import HttpUrl
+from pydantic import BaseModel, Field, HttpUrl 
 
-# Imports from MCP SDK
 from mcp import ClientSession, types
-# Import sse_client instead of stdio_client
 from mcp.client.sse import sse_client
-# For logging/coloring output
 from colorama import Fore
 
-# Configuration model for a single SSE server
 class SseServerConfig(BaseModel):
     """Configuration for connecting to an MCP server via SSE."""
-    # Expecting a URL like http://host:port (base URL)
-    # The sse_client will likely append the standard /sse path
+
     url: HttpUrl = Field(description="The base URL of the MCP SSE server.")
-    # Optional headers if needed for authentication etc.
     headers: Optional[Dict[str, str]] = Field(default=None, description="Optional headers for the connection.")
 
-# Manager class focused on SSE
+
 class MCPClientManager:
     """
     Manages connections and interactions with multiple MCP servers via SSE.
@@ -48,7 +42,7 @@ class MCPClientManager:
         self._connect_locks: Dict[str, asyncio.Lock] = {
              name: asyncio.Lock() for name in server_configs
         }
-        self._manager_lock = asyncio.Lock() # General lock for manager state
+        self._manager_lock = asyncio.Lock() 
 
     async def _ensure_connected(self, server_name: str):
         """
@@ -78,14 +72,12 @@ class MCPClientManager:
 
             print(f"{Fore.YELLOW}Attempting to connect to MCP server via SSE: {server_name} at {config.url}{Fore.RESET}")
 
-            # Construct the specific SSE endpoint URL (often /sse)
-            # Assuming the base URL is provided in config.url
+            
             sse_url = str(config.url).rstrip('/') + "/sse" # Standard convention
 
             exit_stack = AsyncExitStack()
             try:
-                # Establish SSE transport
-                # Pass headers if provided in config
+                
                 sse_transport = await exit_stack.enter_async_context(
                     sse_client(url=sse_url, headers=config.headers)
                 )
