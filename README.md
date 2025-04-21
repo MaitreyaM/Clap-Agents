@@ -36,13 +36,14 @@ Ensure you have Python 3.10 or later installed.
 
 ```bash
 pip install clap-agents
-
+```
 Depending on the tools or LLM backends you intend to use, you might need additional dependencies listed in the pyproject.toml (e.g., groq, openai, mcp, jsonschema, requests, duckduckgo-search, graphviz). Check the [project.dependencies] and [project.optional-dependencies] sections.
 
 
-Quick Start: Simple Tool calling Agent with a Local Tool
+## Quick Start: Simple Tool calling Agent with a Local Tool
 This example demonstrates creating a Tool calling agent using the Groq backend and a local tool
 
+```
 from dotenv import load_dotenv
 from clap import ToolAgent
 from clap import duckduckgo_search
@@ -56,13 +57,13 @@ async def main():
     print(f"Response:\n{response}")
 
 asyncio.run(main())
+```
 
 
-
-Quick Start: Simple ReAct Agent with a Local Tool
+## Quick Start: Simple ReAct Agent with a Local Tool
 This example demonstrates creating a ReAct agent using the Groq backend and a local tool.
 
-
+```
 import asyncio
 import os
 from dotenv import load_dotenv
@@ -91,11 +92,13 @@ async def main():
     print(response)
     
 asyncio.run(main())
+```
 
-
-Exploring Further
+## Exploring Further
 Multi-Agent Teams: See examples/team_agent.py for setting up sequential or parallel agent workflows.
-MCP Integration: Check examples/minimal_react_mcp_test.py and examples/test_tool_agent_mcp.py (ensure the corresponding MCP server like examples/minimal_mcp_server.py is running).
+
+##MCP Integration: 
+Check examples/minimal_react_mcp_test.py and examples/test_tool_agent_mcp.py (ensure the corresponding MCP server like examples/minimal_mcp_server.py is running).
 Google GenAI: Modify the Quick Start to use GoogleOpenAICompatService instead of GroqService (ensure GOOGLE_API_KEY is set and openai library is installed).
 Built-in Tools: Explore the tools provided in clap.tools (like duckduckgo_search, scrape_url, etc.).
 
