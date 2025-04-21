@@ -197,4 +197,3 @@ class MCPClientManager:
              print(f"{Fore.RED}Error calling tool '{tool_name}' on server '{server_name}': {e}{Fore.RESET}")
              raise RuntimeError(f"Failed to call tool '{tool_name}' on '{server_name}'.") from e
 
-# --- END OF agentic_patterns/mcp_client/client.py (SSE Version) ---
