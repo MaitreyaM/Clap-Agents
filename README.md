@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="[https://your-image-url.com/logo.png](https://i.imgur.com/7Dv4psB.png)" alt="CLAP Logo" width="200"/>
+</p>
+
 # CLAP - Cognitive Layer Agents Package
 
 [![PyPI version](https://img.shields.io/pypi/v/CLAP.svg)](https://pypi.org/project/CLAP/)
@@ -9,6 +13,12 @@
 
 Built with an asynchronous core (`asyncio`), CLAP offers flexibility and performance for complex agentic workflows.
 
+<p align="center">
+  <img src="[https://your-image-url.com/logo.png](https://i.imgur.com/wfw1yBy.png)" alt="CLAP Logo" width="200"/>
+</p>
+
+
+# CLAP - Cognitive Layer Agents Package
 ## Key Features
 
 *   **Modular Agent Patterns:**
