@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="GITCLAP.png" alt="CLAP Logo" width="250" height="250"/>
+  <img src="GITCLAP.png" alt="CLAP Logo" width="350" height="250"/>
 </p>
 
 # CLAP - Cognitive Layer Agents Package
@@ -14,7 +14,7 @@
 Built with an asynchronous core (`asyncio`), CLAP offers flexibility and performance for complex agentic workflows.
 
 <p align="center">
-  <img src="PIP CLAP.png" alt="CLAP Logo" width="250" height="250"/>
+  <img src="PIP CLAP.png" alt="CLAP Logo" width="350" height="250"/>
 </p>
 
 
