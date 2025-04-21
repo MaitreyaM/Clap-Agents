@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="PIPCLAP.png" alt="CLAP Logo" width="200"/>
+  <img src="GITCLAP.png" alt="CLAP Logo" width="200"/>
 </p>
 
 # CLAP - Cognitive Layer Agents Package
