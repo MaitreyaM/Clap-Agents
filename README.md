@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="[https://your-image-url.com/logo.png](https://i.imgur.com/7Dv4psB.png)" alt="CLAP Logo" width="200"/>
+  <img src="[[https://your-image-url.com/logo.png](https://i.imgur.com/7Dv4psB.png)](https://media-hosting.imagekit.io/bda49b1abb16476f/GITCLAP.png?Expires=1839848364&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=SLZrY-JFbrzJuoKKh2v0-mBY7JZTmTJ0y6f7dziwTYoCRvboLj0qWOpYybP7NwEdWQfiNQYmRlcIGoysQSdPfMykfNWHDj86qsv7N3UOXmYHiU5zOnwUkCEaNRterb3nXzQFzw7dd5Ji5tW22RJIf7ujd0~BrI1FrcUo3Qw~bpYq2BwYPsYpaf7KiAIsm2QxfM-ZiH3GZ2jO6wBCGshXcU0WfoaSz8I6IhJwsccU3xrsMQ1zDH8tyOH7nVVjghSFwYYiJUy2srh5pcqGZ5qPNg19~eJTDq1vBbkA49ouoxIZvH~CLYl8S2-dEjhrUpXPgCZG9w5SKC-lwoVfmRwogQ__)" alt="CLAP Logo" width="200"/>
 </p>
 
 # CLAP - Cognitive Layer Agents Package
