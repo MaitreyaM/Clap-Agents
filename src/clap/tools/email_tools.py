@@ -1,10 +1,9 @@
-# --- START OF agentic_patterns/tools/email_tools.py ---
 
 import os
 import smtplib
 import imaplib
 import email
-import json # For potential result formatting
+import json 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -44,12 +43,10 @@ def _send_email_sync(recipient: str, subject: str, body: str, attachment_path: O
             encoders.encode_base64(part)
             part.add_header("Content-Disposition", f"attachment; filename={os.path.basename(attachment_path)}")
             msg.attach(part)
-        # Use context manager for SMTP connection
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.starttls()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.sendmail(SMTP_USERNAME, recipient, msg.as_string())
-        # Clean up downloaded attachment if it was temporary
         if attachment_path and attachment_path.startswith("temp_attachments"):
             try: os.remove(attachment_path)
             except OSError: pass # Ignore if deletion fails
@@ -161,7 +158,6 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
     except Exception as e:
         return f"Failed to fetch emails: {e}"
 
-# --- Asynchronous Tool Wrappers ---
 
 @tool
 async def send_email(recipient: str, subject: str, body: str,
@@ -206,7 +202,6 @@ async def send_email(recipient: str, subject: str, body: str,
         except Exception as e:
              return f"Error accessing pre-staged attachment: {e}"
 
-    # Run synchronous email sending in thread
     print(f"[Email Tool] Sending email to {recipient}...")
     return await anyio.to_thread.run_sync(
         _send_email_sync, recipient, subject, body, final_attachment_path
