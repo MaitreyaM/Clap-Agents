@@ -51,7 +51,7 @@ from clap import duckduckgo_search
 load_dotenv()
 
 async def main():
-    agent = ToolAgent(tools=duckduckgo_search, model="llama-3.3-70b-versatile")
+    agent = ToolAgent(tools=duckduckgo_search, model="meta-llama/llama-4-scout-17b-16e-instruct")
     user_query = "Search the web for recent news about AI advancements."
     response = await agent.run(user_msg=user_query)
     print(f"Response:\n{response}")
