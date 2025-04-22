@@ -182,7 +182,7 @@ class MCPClientManager:
                   for content_item in result.content:
                       if isinstance(content_item, types.TextContent):
                           response_parts.append(content_item.text)
-                      # Add handling for other content types if needed later
+                      
                       elif isinstance(content_item, types.ImageContent):
                            response_parts.append(f"[Image Content Received: {content_item.mimeType}]")
                       elif isinstance(content_item, types.EmbeddedResource):
