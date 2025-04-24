@@ -141,4 +141,3 @@ class Team:
             # Re-raise the exception so asyncio.gather catches it
             raise
 
-# --- END OF team.py (Parallel Execution - Python 3.10 Compatible) ---
