@@ -123,7 +123,7 @@ def validate_arguments(tool_call_args: dict, tool_schema: dict) -> dict:
              # Unknown type in schema, pass through
             validated_args[arg_name] = arg_value
 
-    # Check for missing required arguments (optional, depends on strictness)
+    
     # required_args = tool_schema.get("function", {}).get("parameters", {}).get("required", [])
     # for req_arg in required_args:
     #     if req_arg not in validated_args:
@@ -173,10 +173,7 @@ class Tool:
             jsonschema.validate(instance=kwargs, schema=parameter_schema)
             # If validation passes, kwargs are structurally correct according to schema
 
-            # Type Coercion/Conversion might still be needed depending on self.fn
-            # If self.fn uses Pydantic models or type hints, it might handle coercion.
-            # Or, you could apply specific conversions based on schema after validation if needed.
-            # For now, assume self.fn or Pydantic handles coercion post-validation.
+           
             validated_kwargs = kwargs # Use original kwargs after validation passes
 
         except jsonschema.ValidationError as e:
