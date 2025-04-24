@@ -88,7 +88,7 @@ def validate_arguments(tool_call_args: dict, tool_schema: dict) -> dict:
         if not prop_schema:
             # Argument not defined in schema, potentially skip or warn
             print(f"Warning: Argument '{arg_name}' not found in tool schema.")
-            validated_args[arg_name] = arg_value # Pass through unknown args for now
+            validated_args[arg_name] = arg_value 
             continue
 
         expected_type_name = prop_schema.get("type")
@@ -115,7 +115,7 @@ def validate_arguments(tool_call_args: dict, tool_schema: dict) -> dict:
                     else:
                         validated_args[arg_name] = expected_type(arg_value)
                 else:
-                    # Type is already correct
+                    
                     validated_args[arg_name] = arg_value
             except (ValueError, TypeError) as e:
                 raise ValueError(f"Error converting argument '{arg_name}' with value '{arg_value}' to type '{expected_type_name}': {e}")
@@ -179,7 +179,7 @@ class Tool:
         except jsonschema.ValidationError as e:
             print(f"Argument validation failed for tool {self.name}: {e.message}")
             return f"Error: Invalid arguments provided - {e.message}"
-        except Exception as e: # Catch other potential validation setup errors
+        except Exception as e: 
              print(f"An unexpected error occurred during argument validation for tool {self.name}: {e}")
              return f"Error: Argument validation failed."
        
