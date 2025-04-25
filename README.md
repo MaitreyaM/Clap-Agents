@@ -109,6 +109,7 @@ Multi-Agent Teams: See examples/team_agent.py for setting up sequential or paral
 
 ## MCP Integration: 
 Check examples/minimal_react_mcp_test.py and examples/test_tool_agent_mcp.py (ensure the corresponding MCP server like examples/minimal_mcp_server.py is running).
+
 Google GenAI: Modify the Quick Start to use GoogleOpenAICompatService instead of GroqService (ensure GOOGLE_API_KEY is set and openai library is installed).
 Built-in Tools: Explore the tools provided in clap.tools (like duckduckgo_search, scrape_url, etc.).
 
