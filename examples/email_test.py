@@ -20,7 +20,7 @@ async def main():
 
     # await asyncio.sleep(1) # Small delay
 
-    # test_recipient = "maitreyamishra04@gmail.com" 
+    # test_recipient = "youremail@gmail.com" 
     
     # query2 = f"Draft and send an email to {test_recipient}. Subject should be 'Agent Test' and body should be 'Hello from the CLAP Framework! and write a 30 words message thanking them for using our frame work'"
     # response2 = await agent.run(user_msg=query2)
