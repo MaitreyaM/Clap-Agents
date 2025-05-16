@@ -1,29 +1,20 @@
-# --- START OF agentic_patterns/mcp_client/client.py (SSE Version) ---
 
 import asyncio
 import json
 from contextlib import AsyncExitStack
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, HttpUrl # Import HttpUrl
+from pydantic import BaseModel, Field, HttpUrl 
 
-# Imports from MCP SDK
 from mcp import ClientSession, types
-# Import sse_client instead of stdio_client
 from mcp.client.sse import sse_client
-# For logging/coloring output
 from colorama import Fore
 
-# Configuration model for a single SSE server
 class SseServerConfig(BaseModel):
     """Configuration for connecting to an MCP server via SSE."""
-    # Expecting a URL like http://host:port (base URL)
-    # The sse_client will likely append the standard /sse path
     url: HttpUrl = Field(description="The base URL of the MCP SSE server.")
-    # Optional headers if needed for authentication etc.
     headers: Optional[Dict[str, str]] = Field(default=None, description="Optional headers for the connection.")
 
-# Manager class focused on SSE
 class MCPClientManager:
     """
     Manages connections and interactions with multiple MCP servers via SSE.
@@ -79,24 +70,22 @@ class MCPClientManager:
             print(f"{Fore.YELLOW}Attempting to connect to MCP server via SSE: {server_name} at {config.url}{Fore.RESET}")
 
             # Construct the specific SSE endpoint URL (often /sse)
-            # Assuming the base URL is provided in config.url
-            sse_url = str(config.url).rstrip('/') + "/sse" # Standard convention
+            sse_url = str(config.url).rstrip('/') + "/sse" 
 
             exit_stack = AsyncExitStack()
             try:
-                # Establish SSE transport
-                # Pass headers if provided in config
+                
                 sse_transport = await exit_stack.enter_async_context(
                     sse_client(url=sse_url, headers=config.headers)
                 )
                 read_stream, write_stream = sse_transport
 
-                # Establish MCP session
+                
                 session = await exit_stack.enter_async_context(
                     ClientSession(read_stream, write_stream)
                 )
 
-                # Initialize session
+                
                 await session.initialize()
 
                 async with self._manager_lock:
@@ -128,9 +117,9 @@ class MCPClientManager:
         """Disconnects from all currently connected servers."""
         server_names = list(self.sessions.keys())
         print(f"{Fore.YELLOW}Disconnecting from all servers: {server_names}{Fore.RESET}")
-        # Use asyncio.gather for concurrent disconnection
+        
         tasks = [self.disconnect(name) for name in server_names]
-        await asyncio.gather(*tasks, return_exceptions=True) # Handle errors during disconnect
+        await asyncio.gather(*tasks, return_exceptions=True) 
         print(f"{Fore.GREEN}Finished disconnecting all servers.{Fore.RESET}")
 
     async def list_remote_tools(self, server_name: str) -> List[types.Tool]:
@@ -190,7 +179,6 @@ class MCPClientManager:
                   for content_item in result.content:
                       if isinstance(content_item, types.TextContent):
                           response_parts.append(content_item.text)
-                      # Add handling for other content types if needed later
                       elif isinstance(content_item, types.ImageContent):
                            response_parts.append(f"[Image Content Received: {content_item.mimeType}]")
                       elif isinstance(content_item, types.EmbeddedResource):
@@ -205,4 +193,3 @@ class MCPClientManager:
              print(f"{Fore.RED}Error calling tool '{tool_name}' on server '{server_name}': {e}{Fore.RESET}")
              raise RuntimeError(f"Failed to call tool '{tool_name}' on '{server_name}'.") from e
 
-# --- END OF agentic_patterns/mcp_client/client.py (SSE Version) ---

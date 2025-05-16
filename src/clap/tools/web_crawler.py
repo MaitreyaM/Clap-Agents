@@ -48,7 +48,7 @@ async def extract_text_by_query(url: str, query: str, context_size: int = 300) -
         markdown_content = await scrape_url.run(url=url)
 
         if not markdown_content or markdown_content == "No content found" or markdown_content.startswith("Error"):
-            # Pass through the error message from scrape_url if it failed
+            
             return markdown_content if markdown_content.startswith("Error") else f"Could not retrieve content from URL: {url}"
 
         lower_query = query.lower()
@@ -56,7 +56,7 @@ async def extract_text_by_query(url: str, query: str, context_size: int = 300) -
         matches = []
         start_index = 0
 
-        while len(matches) < 5: # Limit matches
+        while len(matches) < 5: 
             pos = lower_content.find(lower_query, start_index)
             if pos == -1:
                 break
@@ -77,6 +77,4 @@ async def extract_text_by_query(url: str, query: str, context_size: int = 300) -
             return f"No matches found for '{query}' on the page."
 
     except Exception as e:
-        # Catch potential errors during the find/string manipulation logic
         return f"Error processing content from '{url}' for query '{query}': {str(e)}"
-

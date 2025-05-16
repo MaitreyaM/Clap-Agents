@@ -1,10 +1,9 @@
-# --- START OF agentic_patterns/tools/email_tools.py ---
 
 import os
 import smtplib
 import imaplib
 import email
-import json # For potential result formatting
+import json 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -44,25 +43,25 @@ def _send_email_sync(recipient: str, subject: str, body: str, attachment_path: O
             encoders.encode_base64(part)
             part.add_header("Content-Disposition", f"attachment; filename={os.path.basename(attachment_path)}")
             msg.attach(part)
-        # Use context manager for SMTP connection
+        
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.starttls()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.sendmail(SMTP_USERNAME, recipient, msg.as_string())
-        # Clean up downloaded attachment if it was temporary
+        
         if attachment_path and attachment_path.startswith("temp_attachments"):
             try: os.remove(attachment_path)
-            except OSError: pass # Ignore if deletion fails
+            except OSError: pass 
         return "Email sent successfully."
     except Exception as e:
         return f"Failed to send email: {e}"
 
 def _download_attachment_sync(attachment_url: str, attachment_filename: str) -> str:
     """Synchronous helper to download an attachment."""
-    temp_dir = "temp_attachments" # Consider using tempfile module for more robustness
+    temp_dir = "temp_attachments" 
     os.makedirs(temp_dir, exist_ok=True)
     file_path = os.path.join(temp_dir, attachment_filename)
-    # Use streaming for potentially large files
+    
     with requests.get(attachment_url, stream=True) as r:
         r.raise_for_status()
         with open(file_path, "wb") as f:
@@ -72,7 +71,7 @@ def _download_attachment_sync(attachment_url: str, attachment_filename: str) -> 
 
 def _get_pre_staged_attachment_sync(attachment_name: str) -> Optional[str]:
     """Synchronous helper to get a pre-staged attachment."""
-    attachment_dir = "available_attachments" # User needs to create this folder
+    attachment_dir = "available_attachments" 
     file_path = os.path.join(attachment_dir, attachment_name)
     return file_path if os.path.exists(file_path) else None
 
@@ -95,7 +94,7 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
             return f"No emails found in folder '{folder}'."
 
         email_ids = data[0].split()
-        # Fetch in reverse order up to the limit
+        
         ids_to_fetch = email_ids[-(limit):]
 
         for email_id_bytes in reversed(ids_to_fetch):
@@ -109,7 +108,7 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
                             subject = subject.decode(encoding or "utf-8")
                         from_ = msg.get("From", "")
                         date_ = msg.get("Date", "")
-                        # Basic snippet extraction (first text part)
+                        
                         snippet = ""
                         if msg.is_multipart():
                             for part in msg.walk():
@@ -119,8 +118,8 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
                                     try:
                                         body = part.get_payload(decode=True)
                                         snippet = body.decode(part.get_content_charset() or 'utf-8')
-                                        snippet = " ".join(snippet.splitlines()) # Remove newlines
-                                        snippet = snippet[:150] + "..." # Truncate
+                                        snippet = " ".join(snippet.splitlines()) 
+                                        snippet = snippet[:150] + "..." 
                                         break
                                     except Exception:
                                         snippet = "[Could not decode body]"
@@ -141,7 +140,7 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
                             "date": date_,
                             "snippet": snippet
                         })
-            if len(emails_data) >= limit: # Should not exceed limit due to slicing, but safety check
+            if len(emails_data) >= limit: 
                  break
 
         mail.logout()
@@ -149,7 +148,7 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
         if not emails_data:
             return f"No emails found in folder '{folder}'."
 
-        # Format result (maybe JSON is better for agents?)
+        
         result_text = f"Recent emails from {folder} (up to {limit}):\n\n"
         for i, email_data in enumerate(emails_data, 1):
             result_text += f"{i}. From: {email_data['from']}\n"
@@ -161,7 +160,7 @@ def _fetch_emails_sync(folder: str, limit: int) -> str:
     except Exception as e:
         return f"Failed to fetch emails: {e}"
 
-# --- Asynchronous Tool Wrappers ---
+
 
 @tool
 async def send_email(recipient: str, subject: str, body: str,
@@ -195,7 +194,7 @@ async def send_email(recipient: str, subject: str, body: str,
             return f"Failed to download attachment from URL: {e}"
     elif attachment_name:
         try:
-            # Run synchronous file check in thread
+            
             print(f"[Email Tool] Checking for pre-staged attachment: {attachment_name}...")
             final_attachment_path = await anyio.to_thread.run_sync(
                 _get_pre_staged_attachment_sync, attachment_name
@@ -206,7 +205,7 @@ async def send_email(recipient: str, subject: str, body: str,
         except Exception as e:
              return f"Error accessing pre-staged attachment: {e}"
 
-    # Run synchronous email sending in thread
+    
     print(f"[Email Tool] Sending email to {recipient}...")
     return await anyio.to_thread.run_sync(
         _send_email_sync, recipient, subject, body, final_attachment_path
@@ -227,4 +226,3 @@ async def fetch_recent_emails(folder: str = "INBOX", limit: int = 5) -> str:
     # Run synchronous IMAP fetching in thread
     print(f"[Email Tool] Fetching up to {limit} emails from folder '{folder}'...")
     return await anyio.to_thread.run_sync(_fetch_emails_sync, folder, limit)
-

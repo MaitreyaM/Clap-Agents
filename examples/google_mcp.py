@@ -27,7 +27,7 @@ async def main():
 
     # 3. Instantiate the Google LLM Service
     google_llm_service = GoogleOpenAICompatService()
-    gemini_model = "gemini-2.0-flash" # Or your preferred compatible model
+    gemini_model = "gemini-2.5-pro-exp-03-25" # Or your preferred compatible model
 
     agent = ReactAgent(
         llm_service=google_llm_service,
@@ -38,21 +38,10 @@ async def main():
     )
 
     user_query = "Calculate (10 + 5) * 3"
-  
 
-    response = "Agent run failed."
-    try:
-        response = await agent.run(user_msg=user_query)
-        print(f"\n--- Agent Final Response ---")
-        print(response)
-    except Exception as e:
-        print(f"\n--- Agent Run Error ---")
-        print(f"An error occurred: {e}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        print("\n--- Cleaning up MCP connections ---")
-        await manager.disconnect_all()
+    response = await agent.run(user_msg=user_query)
+
+    await manager.disconnect_all()
 
 
 asyncio.run(main())

@@ -1,6 +1,4 @@
-# --- Example content for src/clap/__init__.py ---
 
-# Import key classes/functions from submodules to make them accessible at the top level
 
 # Multi-agent pattern
 from .multiagent_pattern.agent import Agent
@@ -16,7 +14,17 @@ from .tool_pattern.tool_agent import ToolAgent
 # LLM Services (Interface and implementations)
 from .llm_services.base import LLMServiceInterface, StandardizedLLMResponse, LLMToolCall
 from .llm_services.groq_service import GroqService
+from .llm_services.ollama_service import OllamaOpenAICompatService
 from .llm_services.google_openai_compat_service import GoogleOpenAICompatService
+
+from .embedding.base_embedding import EmbeddingFunctionInterface
+from .embedding.sentence_transformer_embedding import SentenceTransformerEmbeddings
+from .embedding.fastembed_embedding import FastEmbedEmbeddings
+from .embedding.ollama_embedding import OllamaEmbeddings
+
+from .vector_stores.base import VectorStoreInterface, QueryResult
+from .vector_stores.chroma_store import ChromaStore
+from .vector_stores.qdrant_store import QdrantStore
 
 from .mcp_client.client import MCPClientManager, SseServerConfig 
 
@@ -32,7 +40,7 @@ __all__ = [
     "ReactAgent",
     "ToolAgent",
     "Tool",
-    "tool", # The decorator
+    "tool", 
 
     # LLM Services
     "LLMServiceInterface",
@@ -40,18 +48,15 @@ __all__ = [
     "LLMToolCall",
     "GroqService",
     "GoogleOpenAICompatService",
+    "EmbeddingFunctionInterface", "SentenceTransformerEmbeddings",
+    "VectorStoreInterface", "QueryResult", "ChromaStore","send_email", "fetch_recent_emails",
+    "OllamaService","FastEmbedEmbeddings","OllamaEmbeddings","QdrantStore","scrape_url", "extract_text_by_query",
 
     # MCP Client
     "MCPClientManager",
-    "SseServerConfig", # Expose config type
+    "SseServerConfig", 
 
-    # Selected Tools (example)
+    
     "duckduckgo_search",
-    # Add others from .tools if desired as part of the core offering
 ]
 
-# You might also want to define a package-level version variable here
-# (though often handled by build tools or version files)
-# __version__ = "0.1.0"
-
-# --- End of src/clap/__init__.py ---

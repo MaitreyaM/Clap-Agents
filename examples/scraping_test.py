@@ -16,12 +16,12 @@ async def main():
     query1 = "Can you scrape the content of https://docs.agno.com/introduction for me?"
     response1 = await agent.run(user_msg=query1)
     
-    print(response1[:500] + "...")
+    print(response1)
     
 
     await asyncio.sleep(1)
 
-    query2 = "Look for the term 'library' on the page https://docs.agno.com/introduction and show me the surrounding text."
+    query2 = "Can you look at https://docs.agno.com/introduction and tell me what it says about 'Agent Teams'?"
     response2 = await agent.run(user_msg=query2)
     print(response2)
     
@@ -29,4 +29,3 @@ async def main():
     
 
 asyncio.run(main())
-

@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 @dataclass
 class LLMToolCall:
     """Represents a tool call requested by the LLM."""
-    id: str # The unique ID for this specific tool call instance
+    id: str 
     function_name: str
     function_arguments_json_str: str
 
@@ -32,7 +32,7 @@ class LLMServiceInterface(abc.ABC):
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: str = "auto",
-        # Optional: Add other common configuration parameters if needed later
+        # Optional: 
         # temperature: Optional[float] = None,
         # max_tokens: Optional[int] = None,
     ) -> StandardizedLLMResponse:
@@ -61,8 +61,5 @@ class LLMServiceInterface(abc.ABC):
         """
         pass
 
-    # Optional: Add other common methods if needed, e.g., for embedding generation
-    # @abc.abstractmethod
-    # async def get_embedding(self, text: str, model: str) -> List[float]:
-    #     pass
+   
 

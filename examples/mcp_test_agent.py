@@ -9,17 +9,14 @@ from clap import MCPClientManager, SseServerConfig
 load_dotenv()
 
 async def main():
-    server_name = "adder_server"
     server_configs = {
         server_name: SseServerConfig(url=HttpUrl("http://localhost:8000"))
     }
     manager = MCPClientManager(server_configs)
-
     agent = ToolAgent(
-        tools=[],
         mcp_manager=manager,
-        mcp_server_names=[server_name],
-        model="llama-3.3-70b-versatile" 
+        mcp_server_names=["adder_server"],
+        model="meta-llama/llama-4-scout-17b-16e-instruct" 
     )
 
     user_query = "What is 123 plus 456?"

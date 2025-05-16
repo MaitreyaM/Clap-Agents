@@ -1,4 +1,3 @@
-# --- START OF team.py (Parallel Execution - Python 3.10 Compatible) ---
 
 import asyncio
 from collections import deque
@@ -35,7 +34,7 @@ class Team:
     def register_agent(agent: Agent):
         if Team.current_team is not None: Team.current_team.add_agent(agent)
 
-    # topological_sort and plot remain the same
+    
     def topological_sort(self) -> List[Agent]:
         in_degree: Dict[Agent, int] = {agent: 0 for agent in self.agents}
         adj: Dict[Agent, List[Agent]] = {agent: [] for agent in self.agents}

@@ -5,7 +5,6 @@ import json
 import uuid 
 from typing import Any, Dict, List, Optional
 
-# Import the OpenAI library
 try:
     from openai import AsyncOpenAI, OpenAIError
 except ImportError:
@@ -13,10 +12,8 @@ except ImportError:
 
 from colorama import Fore
 
-# Import the base interface and response structures
 from .base import LLMServiceInterface, StandardizedLLMResponse, LLMToolCall
 
-# Google's OpenAI-compatible endpoint
 GOOGLE_COMPAT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 class GoogleOpenAICompatService(LLMServiceInterface):
@@ -95,7 +92,7 @@ class GoogleOpenAICompatService(LLMServiceInterface):
                 for tc in message.tool_calls:
                     tool_call_id = getattr(tc, 'id', None)
                     if not tool_call_id:
-                        tool_call_id = f"compat_call_{uuid.uuid4().hex[:6]}" # Use uuid here
+                        tool_call_id = f"compat_call_{uuid.uuid4().hex[:6]}" 
                         print(f"{Fore.YELLOW}Warning: Tool call from Google compat layer missing ID. Generated fallback: {tool_call_id}{Fore.RESET}")
 
                     if tc.function:
@@ -119,4 +116,3 @@ class GoogleOpenAICompatService(LLMServiceInterface):
             print(f"{Fore.RED}Error calling Google (via OpenAI Compat Layer) LLM API: {e}{Fore.RESET}")
             raise
 
-# --- END OF agentic_patterns/llm_services/google_openai_compat_service.py ---

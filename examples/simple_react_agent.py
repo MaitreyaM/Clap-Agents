@@ -3,8 +3,6 @@ import os
 from dotenv import load_dotenv
 from clap import ReactAgent, tool, GroqService
 
-
-# --- Setup ---
 load_dotenv() 
 @tool
 def get_word_length(word: str) -> int:
@@ -13,12 +11,12 @@ def get_word_length(word: str) -> int:
     return len(word)
 
 async def main():
-    groq_service = GroqService() # Your service of choice (either groq or Google)
+    groq_service = GroqService() 
     agent = ReactAgent(
         llm_service=groq_service,
-        model="llama-3.3-70b-versatile", # Or another Groq model
-        tools=[get_word_length], # Provide the local tool
-        # system_prompt="You are a helpful assistant." # Optional base prompt
+        model="llama-3.3-70b-versatile", 
+        tools=[get_word_length], 
+        system_prompt="You are a helpful assistant." # Optional 
     )
 
     user_query = "How many letters are in the word 'framework'?"
