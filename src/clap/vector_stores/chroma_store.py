@@ -1,4 +1,3 @@
-# --- START OF FILE src/clap/vector_stores/chroma_store.py ---
 
 import json
 import functools
@@ -6,20 +5,18 @@ from typing import Any, Dict, List, Optional
 
 import anyio
 
-# Import the ChromaDB client library
 try:
     import chromadb
     from chromadb import Collection
     from chromadb.config import Settings
     from chromadb.utils.embedding_functions import (
         EmbeddingFunction,
-        SentenceTransformerEmbeddingFunction, # Example EF
-        DefaultEmbeddingFunction # Chroma's default
+        SentenceTransformerEmbeddingFunction, 
+        DefaultEmbeddingFunction 
     )
 except ImportError:
     raise ImportError(
         "ChromaDB not found. Please install it using: pip install chromadb sentence-transformers"
-        # Add sentence-transformers only if you plan to use it as default below
     )
 
 
@@ -39,13 +36,13 @@ class ChromaStore(VectorStoreInterface):
 
     def __init__(
         self,
-        path: Optional[str] = None,  # For PersistentClient
-        host: Optional[str] = None,  # For HttpClient
-        port: Optional[int] = None,  # For HttpClient
+        path: Optional[str] = None,  
+        host: Optional[str] = None,  
+        port: Optional[int] = None,  
         collection_name: str = "clap_collection",
         embedding_function: Optional[EmbeddingFunction] = None,
         client_settings: Optional[Settings] = None,
-        # Add other client args like ssl, headers if needed for HttpClient
+        
     ):
         """
         Initializes the ChromaDB vector store.
@@ -76,25 +73,21 @@ class ChromaStore(VectorStoreInterface):
         self._embedding_function = embedding_function or DefaultEmbeddingFunction()
         self.collection_name = collection_name
 
-        # Get or create the collection synchronously during init for simplicity,
-        # but use functools.partial for async execution later.
-        # Consider making init async if this becomes a bottleneck.
+        
         print(f"ChromaStore: Getting or creating collection '{self.collection_name}'...")
         self._collection = self._client.get_or_create_collection(
             name=self.collection_name,
             embedding_function=self._embedding_function,
-            # Optionally add metadata here if needed for creation
+            
         )
         print(f"ChromaStore: Collection '{self.collection_name}' ready.")
 
 
-    # --- Helper for running sync Chroma methods in async context ---
     async def _run_sync(self, func, *args, **kwargs):
         """Runs a synchronous function in a thread pool."""
         bound_func = functools.partial(func, *args, **kwargs)
         return await anyio.to_thread.run_sync(bound_func)
 
-    # --- Interface Implementation ---
 
     async def add_documents(
         self,
@@ -104,8 +97,6 @@ class ChromaStore(VectorStoreInterface):
         embeddings: Optional[List[Embedding]] = None,
     ) -> None:
         """Adds documents/embeddings to the Chroma collection."""
-        # Chroma's add handles embedding generation if embeddings are None and documents are provided
-        # It uses the embedding_function configured for the collection
         await self._run_sync(
             self._collection.add,
             ids=ids,
@@ -141,8 +132,7 @@ class ChromaStore(VectorStoreInterface):
             include=include,
         )
         print(f"ChromaStore: Query returned {len(results.get('ids', [[]])[0])} results for {len(query_texts or query_embeddings)} queries.")
-        # Ensure the result conforms to the QueryResult TypedDict structure
-        # Chroma's result format is very close, just needs potential None checks
+        
         return QueryResult(
             ids=results.get("ids", []),
             embeddings=results.get("embeddings"),
@@ -168,38 +158,31 @@ class ChromaStore(VectorStoreInterface):
         print(f"ChromaStore: Deleted {deleted_count}.")
 
 
-# Example usage (for testing within this file)
 async def _test():
     print("Testing ChromaStore...")
-    # Requires sentence-transformers: pip install sentence-transformers
     try:
         ef = SentenceTransformerEmbeddingFunction() # Example specific EF
         store = ChromaStore(path="./chroma_test_db", embedding_function=ef, collection_name="test_rag")
 
-        # Add
         docs = ["This is document one about apples.", "This is document two about oranges."]
         ids = ["doc1", "doc2"]
         metas = [{"source": "file1"}, {"source": "file2"}]
         await store.add_documents(documents=docs, ids=ids, metadatas=metas)
 
-        # Add again (should update/upsert implicitly if using default chromadb behavior)
         docs3 = ["This is document three about bananas."]
         ids3 = ["doc3"]
         metas3 = [{"source": "file3"}]
         await store.add_documents(documents=docs3, ids=ids3, metadatas=metas3)
 
 
-        # Query
         query = "What fruit is mentioned?"
         results = await store.aquery(query_texts=[query], n_results=2, include=["metadatas", "documents", "distances"])
         print("\nQuery Results:")
         print(json.dumps(results, indent=2))
 
-        # Delete
         await store.adelete(ids=["doc1"])
         print("\nDeleted doc1.")
 
-        # Query again
         results_after_delete = await store.aquery(query_texts=[query], n_results=3)
         print("\nQuery Results after delete:")
         print(json.dumps(results_after_delete, indent=2))
@@ -207,7 +190,6 @@ async def _test():
     except Exception as e:
         print(f"Error during test: {e}")
     finally:
-        # Clean up test db
         import shutil
         try:
             shutil.rmtree("./chroma_test_db")
@@ -219,4 +201,3 @@ if __name__ == "__main__":
     import asyncio
     asyncio.run(_test())
 
-# --- END OF FILE src/clap/vector_stores/chroma_store.py ---

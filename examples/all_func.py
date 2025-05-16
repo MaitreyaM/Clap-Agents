@@ -174,8 +174,7 @@ async def main():
     print(f"\n\nTotal Ollama Test Suite Took: {time.time() - overall_start_time:.2f} seconds.")
     if os.path.exists(RAG_DB_PATH):
         print(f"Cleaning up test database: {RAG_DB_PATH}")
-        # shutil.rmtree(RAG_DB_PATH) # Uncomment to auto-delete DB
+        shutil.rmtree(RAG_DB_PATH)
 
 if __name__ == "__main__":
     asyncio.run(main())
-# --- END OF FILE examples/test_ollama_suite.py ---

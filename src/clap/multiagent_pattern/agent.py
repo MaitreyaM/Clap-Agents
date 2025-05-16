@@ -187,10 +187,10 @@ class Agent:
 
         msg = self.create_prompt()
         
-        self.task_description = original_task_description # Restore original for next potential run if needed
+        self.task_description = original_task_description 
 
         print(f"Agent {self.name}: Running ReactAgent...")
-        raw_output = await self.react_agent.run(user_msg=msg) # msg now contains the correct query
+        raw_output = await self.react_agent.run(user_msg=msg) 
         output_data = {"output": raw_output}
 
         print(f"Agent {self.name}: Passing context to {len(self.dependents)} dependents...")

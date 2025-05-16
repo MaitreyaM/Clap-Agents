@@ -1,4 +1,3 @@
-# --- START OF REVISED src/clap/embedding/ollama_embeddings.py ---
 import asyncio
 import functools
 from typing import List, Optional, Any, cast
@@ -80,7 +79,6 @@ class OllamaEmbeddings(EmbeddingFunctionInterface):
                     f"Expected List[List[float]]. Raw response: {response}"
                 )
 
-            # print(f"OllamaEmbeddings: Embedding completed for {len(texts)} texts.")
             return cast(List[List[float]], embeddings_data)
         except OllamaResponseError as e:
             print(f"Ollama API error during embedding with model '{self.model_name}': {e.error} (Status: {e.status_code})")

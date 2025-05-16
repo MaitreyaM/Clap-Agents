@@ -1,14 +1,13 @@
-# --- START OF FILE examples/test_clap_comprehensive_suite.py ---
 import asyncio
 import os
 import shutil
 import time
 import json
-import uuid # For Qdrant/Weaviate IDs
+import uuid 
 from dotenv import load_dotenv
 from typing import Any, Dict, List, Optional
 
-# --- CLAP Framework Imports ---
+
 from clap import (
     Agent, Team, ToolAgent, tool,
     LLMServiceInterface, GroqService, GoogleOpenAICompatService,
@@ -21,54 +20,51 @@ from clap.llm_services.ollama_service import OllamaOpenAICompatService as Ollama
 from clap.embedding.ollama_embedding import KNOWN_OLLAMA_EMBEDDING_DIMENSIONS
 from clap.embedding.fastembed_embedding import KNOWN_FASTEMBED_DIMENSIONS as FE_KNOWN_DIMS
 
-# --- External Dependencies for Vector Stores ---
 
 from qdrant_client import models as qdrant_models
 QDRANT_CLIENT_INSTALLED = True
 
 
 try:
-    from chromadb.config import Settings as ChromaSettings # Not strictly needed for default EF test
+    from chromadb.config import Settings as ChromaSettings 
     CHROMA_CLIENT_INSTALLED = True
 except ImportError:
     CHROMA_CLIENT_INSTALLED = False
 
-# --- MCP Client (if testing MCP tools) ---
 from clap.mcp_client.client import MCPClientManager, SseServerConfig
 from pydantic import HttpUrl
 
-# --- Utilities ---
+
 from clap.utils.rag_utils import load_pdf_file, chunk_text_by_fixed_size
 
 load_dotenv()
 
-# --- Configuration ---
-PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf" # Ensure this path is correct
+
+PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf"
 DB_BASE_PATH = "./clap_suite_dbs"
 
-# LLM Models
 GROQ_LLM_MODEL = "llama-3.3-70b-versatile"
-OLLAMA_LLM_MODEL = "llama3.2:latest" # Ensure pulled: ollama pull llama3
-GOOGLE_LLM_MODEL = "gemini-2.5-flash-preview-04-17" # Updated to common flash model
+OLLAMA_LLM_MODEL = "llama3.2:latest" 
+GOOGLE_LLM_MODEL = "gemini-2.5-flash-preview-04-17" 
 
-# Embedding Models
+
 ST_EMBED_MODEL = "all-MiniLM-L6-v2"
-OLLAMA_EMBED_MODEL = "nomic-embed-text:latest" # Ensure pulled: ollama pull nomic-embed-text
+OLLAMA_EMBED_MODEL = "nomic-embed-text:latest" 
 FASTEMBED_MODEL = "BAAI/bge-small-en-v1.5"
 
 
-# --- Ollama Specific Host (Define Globally) ---
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434") # Default if not in .env
 
-# Chunking
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434") 
+
+
 CHUNK_SIZE, CHUNK_OVERLAP = 400, 40
 
-# --- Global Variables ---
+
 PDF_CONTENT_CACHE: Optional[str] = None
 MCP_MANAGER_INSTANCE: Optional[MCPClientManager] = None
 MCP_ENABLED = False
 
-# --- Helper Functions (remain the same as before) ---
+
 def print_section_header(title: str): print(f"\n\n{'='*25} {title.upper()} {'='*25}")
 def print_test_case_header(name: str): print(f"\n--- Test Case: {name} ---")
 def print_query(query:str): print(f"User Query/Task: {query}")
@@ -108,7 +104,6 @@ def simple_math(a: int, b: int, operation: str = "add") -> str:
 async def setup_vector_store(
     store_type: str, db_name: str, collection_name: str, ef: Optional[EmbeddingFunctionInterface]
 ) -> Optional[VectorStoreInterface]:
-    # (Same as before, ensure it uses uuid.uuid4() for IDs if needed by store)
     db_path = os.path.join(DB_BASE_PATH, db_name)
     if os.path.exists(db_path): shutil.rmtree(db_path)
     else: os.makedirs(db_path, exist_ok=True)
@@ -138,10 +133,8 @@ async def setup_vector_store(
 
 
 async def cleanup_vector_store(store: Optional[VectorStoreInterface], db_name: str):
-    # (Same as before)
     if store and hasattr(store, 'close') and callable(store.close): await store.close()
 
-# --- Test Suites (run_llm_service_tests, run_rag_tests_for_service, run_rag_tests_chroma_default_ef, run_team_tests_for_service remain THE SAME as your last provided version) ---
 async def run_llm_service_tests(llm_service: LLMServiceInterface, llm_model: str, service_name: str):
     print_section_header(f"{service_name} LLM Tests (ToolAgent & ReactAgent Basic)")
     agent1 = ToolAgent(llm_service=llm_service, model=llm_model, tools=[])
@@ -214,8 +207,7 @@ async def main():
     if not os.path.exists(DB_BASE_PATH): os.makedirs(DB_BASE_PATH)
     await get_pdf_content()
 
-    # --- Initialize Services ---
-    # OLLAMA_HOST is now a global constant at the top of the script
+    
     ollama_service: Optional[OllamaService] = None
     if os.getenv("RUN_OLLAMA_TESTS", "true").lower() == "true":
         try:
@@ -238,17 +230,16 @@ async def main():
         except Exception as e: print(f"Failed to init Google Service: {e}")
 
 
-    # --- Initialize Embedding Functions (once) ---
     st_ef = SentenceTransformerEmbeddings(model_name=ST_EMBED_MODEL)
     
     ollama_ef: Optional[OllamaEmbeddings] = None
     if ollama_service:
-        # KNOWN_OLLAMA_EMBEDDING_DIMENSIONS is imported at the top
+       
         if OLLAMA_EMBED_MODEL in KNOWN_OLLAMA_EMBEDDING_DIMENSIONS:
             try:
                 ollama_ef = OllamaEmbeddings(
                     model_name=OLLAMA_EMBED_MODEL,
-                    ollama_host=OLLAMA_HOST # Use the global OLLAMA_HOST
+                    ollama_host=OLLAMA_HOST 
                 )
             except Exception as e: print(f"Could not initialize OllamaEmbeddings: {e}")
         else:
@@ -273,7 +264,6 @@ async def main():
     MCP_ENABLED = mcp_manager is not None
     if not MCP_ENABLED: print("MCP Manager not available. MCP tool tests in Team will be skipped.")
 
-    # --- Run Test Suites ---
     services_to_test = []
     if ollama_service: services_to_test.append({"service": ollama_service, "model": OLLAMA_LLM_MODEL, "name": "Ollama"})
     if groq_service: services_to_test.append({"service": groq_service, "model": GROQ_LLM_MODEL, "name": "Groq"})
@@ -283,7 +273,7 @@ async def main():
         svc, model, name = test_config["service"], test_config["model"], test_config["name"]
         await run_llm_service_tests(svc, model, name)
 
-        if name == "Ollama": # Specific RAG for Ollama using its own embeddings
+        if name == "Ollama":
             if ollama_ef:
                 if CHROMA_CLIENT_INSTALLED: await run_rag_tests_for_service(svc, model, name, ollama_ef, "OllamaEF", "ChromaStore", f"{name.lower()}_chroma_ollama")
                 if QDRANT_CLIENT_INSTALLED: await run_rag_tests_for_service(svc, model, name, ollama_ef, "OllamaEF", "QdrantStore", f"{name.lower()}_qdrant_ollama")
@@ -306,4 +296,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-# --- END OF FILE examples/test_clap_comprehensive_suite.py (OLLAMA_HOST fix) ---

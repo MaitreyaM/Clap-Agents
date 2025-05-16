@@ -8,20 +8,16 @@ from typing import Any, Dict, List, Optional, cast, Type
 
 import anyio
 
-# --- Qdrant Client Imports ---
 try:
-    # Only need AsyncQdrantClient now for operations
     from qdrant_client import AsyncQdrantClient, models
     from qdrant_client.http.exceptions import UnexpectedResponse
-    # Import QdrantClient only for type hinting if needed, or basic setup check
-    from qdrant_client import QdrantClient # Keep for setup check maybe
+    from qdrant_client import QdrantClient 
     QDRANT_INSTALLED = True
 except ImportError:
     raise ImportError(
         "Qdrant client not found. Please install it using: pip install qdrant-client"
     )
 
-# --- CLAP Imports ---
 from .base import (
     Document,
     Embedding,
@@ -84,7 +80,6 @@ class QdrantStore(VectorStoreInterface):
         instance.distance_metric = distance_metric
         instance.vector_size = instance._embedding_function.get_embedding_dimension() # Get size from EF
 
-        # Initialize the primary ASYNC client
         client_location_for_log = path if path else ":memory:"
         print(f"QdrantStore (Async): Initializing client for collection '{instance.collection_name}' at '{client_location_for_log}'.")
 
@@ -93,7 +88,6 @@ class QdrantStore(VectorStoreInterface):
         else:
             instance._async_client = AsyncQdrantClient(location=":memory:", **qdrant_async_client_kwargs)
 
-        # Setup the collection asynchronously using the async client
         await instance._setup_collection_async(recreate_collection_if_exists)
 
         return instance
@@ -168,26 +162,23 @@ class QdrantStore(VectorStoreInterface):
         embeddings: Optional[List[Embedding]] = None,
     ) -> None:
         """Adds documents to the Qdrant collection using the async client."""
-        # (Input validation remains the same)
         if not documents and not embeddings: raise ValueError("Requires 'documents' or 'embeddings'.")
         num_items = len(documents) if documents else (len(embeddings) if embeddings else 0)
         if num_items == 0: return
         if len(ids) != num_items: raise ValueError("'ids' length mismatch.")
         if metadatas and len(metadatas) != num_items: raise ValueError("'metadatas' length mismatch.")
 
-        # ALWAYS use the embedding function if embeddings aren't provided
         if not embeddings and documents:
             embeddings = await self._embed_texts_via_interface(documents)
         if not embeddings:
             print("QdrantStore: No embeddings available to add.")
             return
 
-        # ALWAYS use async_client.upsert with PointStructs
         points_to_upsert: List[models.PointStruct] = []
         for i, item_id in enumerate(ids):
             payload = metadatas[i].copy() if metadatas and i < len(metadatas) else {}
             if documents and i < len(documents):
-                payload["_clap_document_content_"] = documents[i] # Store original text
+                payload["_clap_document_content_"] = documents[i] 
 
             points_to_upsert.append(
                 self.models.PointStruct(id=str(item_id), vector=embeddings[i], payload=payload)
@@ -210,25 +201,22 @@ class QdrantStore(VectorStoreInterface):
         **kwargs
     ) -> QueryResult:
         """Queries the Qdrant collection using the async client."""
-        # (Input validation remains the same)
         if not query_texts and not query_embeddings: raise ValueError("Requires query_texts or query_embeddings.")
-        if query_texts and query_embeddings: query_texts = None # Prioritize embeddings
+        if query_texts and query_embeddings: query_texts = None 
 
         qdrant_filter_model: Optional[models.Filter] = self._translate_clap_filter(where)
         search_results_raw: List[List[models.ScoredPoint]] = []
 
-        # ALWAYS use the embedding function if query_texts are given
         query_vectors_to_search: List[Embedding]
         if query_texts:
             query_vectors_to_search = await self._embed_texts_via_interface(query_texts)
         elif query_embeddings:
-            query_vectors_to_search = query_embeddings # type: ignore [assignment]
+            query_vectors_to_search = query_embeddings 
         else: # Should not happen
             return QueryResult(ids=[[]], embeddings=None, documents=None, metadatas=None, distances=None)
 
         print(f"QdrantStore: Searching '{self.collection_name}' for {len(query_vectors_to_search)} query vectors...")
         for q_vector in query_vectors_to_search:
-            # ALWAYS use async_client.search
             hits = await self._async_client.search(
                 collection_name=self.collection_name,
                 query_vector=q_vector,
@@ -240,12 +228,9 @@ class QdrantStore(VectorStoreInterface):
             )
             search_results_raw.append(hits)
 
-        # --- Format Results (Same as before) ---
         return self._format_qdrant_results(search_results_raw, include)
 
-    # --- _translate_clap_filter remains the same ---
     def _translate_clap_filter(self, clap_where_filter: Optional[Dict[str, Any]]) -> Optional[models.Filter]:
-        # (Keep the basic translation logic, needs expansion for production)
         if not clap_where_filter: return None
         must_conditions = []
         for key, value in clap_where_filter.items():
@@ -258,9 +243,7 @@ class QdrantStore(VectorStoreInterface):
         elif clap_where_filter: print(f"QdrantStore: Could not translate 'where' filter: {clap_where_filter}")
         return None
 
-    # --- _format_qdrant_results remains the same ---
     def _format_qdrant_results(self, raw_results: List[List[models.ScoredPoint]], include: List[str]) -> QueryResult:
-        # (Keep the result formatting logic)
         final_ids, final_embeddings, final_documents, final_metadatas, final_distances = [], [], [], [], []
         inc_emb = "embeddings" in include; inc_doc = "documents" in include; inc_meta = "metadatas" in include; inc_dist = "distances" in include
         for hits_list in raw_results:
@@ -280,16 +263,14 @@ class QdrantStore(VectorStoreInterface):
         return QueryResult(ids=final_ids, embeddings=final_embeddings if inc_emb else None, documents=final_documents if inc_doc else None, metadatas=final_metadatas if inc_meta else None, distances=final_distances if inc_dist else None,)
 
 
-    # --- adelete remains the same (uses _async_client) ---
     async def adelete(self, ids: Optional[List[ID]] = None, where: Optional[Dict[str, Any]] = None, **kwargs) -> None:
-        # (Keep the delete logic using _async_client and _translate_clap_filter)
         if not ids and not where: print("QdrantStore: Delete requires 'ids' or 'where'."); return
         qdrant_filter_model = self._translate_clap_filter(where)
         points_selector_for_delete: Any = None
         op_desc = "criteria"
         if ids and qdrant_filter_model:
             print("QdrantStore Info: Deleting points matching BOTH IDs AND filter.")
-            id_filter = self.models.Filter(must=[self.models.HasIdCondition(has_id=[str(i) for i in ids])]) # Ensure IDs are str
+            id_filter = self.models.Filter(must=[self.models.HasIdCondition(has_id=[str(i) for i in ids])]) 
             combined_filter = self.models.Filter(must=[qdrant_filter_model, id_filter])
             points_selector_for_delete = self.models.FilterSelector(filter=combined_filter)
             op_desc = "by matching IDs within filter"
@@ -314,4 +295,3 @@ class QdrantStore(VectorStoreInterface):
             except Exception as e: print(f"QdrantStore: Error closing async client: {e}")
         print("QdrantStore: Async client closed.")
 
-# --- END OF FILE src/clap/vector_stores/qdrant_store.py (PURE ASYNC VERSION) ---

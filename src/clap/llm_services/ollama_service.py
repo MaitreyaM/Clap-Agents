@@ -1,7 +1,6 @@
-# --- START OF FILE src/clap/llm_services/ollama_openai_compat_service.py (NEW FILE) ---
 import os
 import json
-import uuid # For fallback tool call IDs if needed
+import uuid 
 from typing import Any, Dict, List, Optional
 
 try:
@@ -49,10 +48,10 @@ class OllamaOpenAICompatService(LLMServiceInterface):
 
     async def get_llm_response(
         self,
-        model: str, # Ollama model name (e.g., "llama3", "mistral")
+        model: str, 
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
-        tool_choice: str = "auto", # OpenAI's tool_choice values
+        tool_choice: str = "auto", 
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
     ) -> StandardizedLLMResponse:
@@ -80,7 +79,7 @@ class OllamaOpenAICompatService(LLMServiceInterface):
 
             if temperature is not None: api_kwargs["temperature"] = temperature
             if max_tokens is not None: api_kwargs["max_tokens"] = max_tokens
-            # Filter out None values before sending to OpenAI client
+           
             api_kwargs = {k: v for k, v in api_kwargs.items() if v is not None}
 
 
@@ -100,13 +99,12 @@ class OllamaOpenAICompatService(LLMServiceInterface):
 
             if message.tool_calls:
                 for tc in message.tool_calls:
-                    # Ensure tc.id, tc.function.name, and tc.function.arguments are present
                     if tc.id and tc.function and tc.function.name and tc.function.arguments is not None:
                         tool_calls_standardized.append(
                             LLMToolCall(
                                 id=tc.id,
                                 function_name=tc.function.name,
-                                function_arguments_json_str=tc.function.arguments # Already a JSON string from OpenAI client
+                                function_arguments_json_str=tc.function.arguments 
                             )
                         )
                     else:
@@ -118,7 +116,7 @@ class OllamaOpenAICompatService(LLMServiceInterface):
                 tool_calls=tool_calls_standardized
             )
 
-        except OpenAIError as e: # Catch errors from the OpenAI client
+        except OpenAIError as e: 
             print(f"{Fore.RED}Ollama (via OpenAI Compat) API Error: {e}{Fore.RESET}")
             error_message = f"Ollama (OpenAI Compat) API Error: {e}"
             if hasattr(e, 'response') and e.response and hasattr(e.response, 'text'):

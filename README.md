@@ -4,9 +4,9 @@
 
 # CLAP - Cognitive Layer Agent Package
 
-[![PyPI version](https://img.shields.io/pypi/v/clap-agents.svg)](https://pypi.org/project/clap-agents/) <!-- Updated badge to clap-agents -->
+[![PyPI version](https://img.shields.io/pypi/v/clap-agents.svg)](https://pypi.org/project/clap-agents/) 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python Version](https://img.shields.io/pypi/pyversions/clap-agents.svg)](https://pypi.org/project/clap-agents/) <!-- Updated badge -->
+[![Python Version](https://img.shields.io/pypi/pyversions/clap-agents.svg)](https://pypi.org/project/clap-agents/) 
 
 **CLAP (Cognitive Layer Agent Package)** is a Python framework providing building blocks for creating sophisticated AI agents based on modern agentic patterns. It enables developers to easily construct agents capable of reasoning, planning, and interacting with external tools, systems, and knowledge bases.
 

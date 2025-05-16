@@ -14,7 +14,7 @@ except ImportError:
 KNOWN_FASTEMBED_DIMENSIONS = {
     "BAAI/bge-small-en-v1.5": 384,
     "sentence-transformers/all-MiniLM-L6-v2": 384, 
-    # Add other known model_name: dimension pairs
+   
 }
 DEFAULT_FASTEMBED_MODEL = "BAAI/bge-small-en-v1.5" 
 
@@ -25,9 +25,9 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
 
     def __init__(self,
                  model_name: str = DEFAULT_FASTEMBED_MODEL,
-                 dimension: Optional[int] = None, # User can override or provide for unknown models
+                 dimension: Optional[int] = None, 
                  embed_batch_size: int = DEFAULT_EMBED_BATCH_SIZE,
-                 **kwargs: Any # Passed to TextEmbedding constructor
+                 **kwargs: Any 
                 ):
         if not _FASTEMBED_LIB_AVAILABLE:
             raise ImportError("The 'fastembed' library is required. Install via 'pip install fastembed'")
@@ -49,7 +49,6 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
             )
         
         try:
-            # print(f"Initializing fastembed model '{self.model_name}' (dim: {self._dimension})...")
             self._model = TextEmbedding(model_name=self.model_name, **kwargs)
             
         except Exception as e:
@@ -60,7 +59,6 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
             return []
         
         all_embeddings_list: List[List[float]] = []
-        # print(f"FastEmbedEmbeddings: Embedding {len(input)} input in batches of {self.embed_batch_size}...")
         for i in range(0, len(input), self.embed_batch_size):
             batch_texts = input[i:i + self.embed_batch_size]
             if not batch_texts: continue
@@ -75,7 +73,6 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
                 print(f"Error embedding batch with fastembed: {e}")
                 raise
         
-        # print(f"FastEmbedEmbeddings: Embedding completed for {len(texts)} texts.")
         return all_embeddings_list
 
     def get_embedding_dimension(self) -> int:

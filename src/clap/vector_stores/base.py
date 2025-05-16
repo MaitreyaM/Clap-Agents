@@ -1,9 +1,7 @@
-# --- START OF FILE src/clap/vector_stores/base.py ---
 
 import abc
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
-# Define types for clarity (can be enhanced later)
 Document = str
 Embedding = List[float]
 ID = str
@@ -83,13 +81,5 @@ class VectorStoreInterface(abc.ABC):
         """
         pass
 
-    # Optional: Add methods for collection management if needed
-    # @abc.abstractmethod
-    # async def acreate_collection(self, name: str, metadata: Optional[dict] = None) -> Any:
-    #     pass
+   
 
-    # @abc.abstractmethod
-    # async def aget_collection(self, name: str) -> Any:
-    #     pass
-
-# --- END OF FILE src/clap/vector_stores/base.py ---

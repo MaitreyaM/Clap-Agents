@@ -1,4 +1,3 @@
-# --- START OF MODIFIED src/clap/tool_pattern/tool_agent.py (WITH RAG) ---
 
 import json
 import asyncio

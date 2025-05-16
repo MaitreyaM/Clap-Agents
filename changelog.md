@@ -10,6 +10,7 @@
     - `SentenceTransformerEmbeddings`
     - `OllamaEmbeddings`
     - `FastEmbedEmbeddings`
+- `Ollama Compatibility` Now run Ollama models locally (both embedding and chat).
 - PDF and CSV loading utilities in `rag_utils`.
 - Argument type coercion in `Tool.run()` for robustness.
 
