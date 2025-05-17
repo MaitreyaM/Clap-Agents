@@ -4,12 +4,14 @@ import os
 from dotenv import load_dotenv
 import crawl4ai
 from clap import ToolAgent
-from clap import scrape_url, extract_text_by_query
+from clap.tools import scrape_url, extract_text_by_query
+from clap.llm_services import GroqService
 
 load_dotenv()
 
 async def main():
     agent = ToolAgent(
+        llm_service=GroqService(),
         tools=[scrape_url, extract_text_by_query], 
         model="llama-3.3-70b-versatile" 
     )

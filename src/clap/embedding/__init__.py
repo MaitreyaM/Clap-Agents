@@ -1,17 +1,21 @@
 from .base_embedding import EmbeddingFunctionInterface
-from .sentence_transformer_embedding import SentenceTransformerEmbeddings
-from .fastembed_embedding import FastEmbedEmbeddings 
+
+__all__ = ["EmbeddingFunctionInterface"]
 
 try:
-    from .ollama_embeddings import OllamaEmbeddings
-    _OLLAMA_EMBED_AVAILABLE = True
+    from .sentence_transformer_embedding import SentenceTransformerEmbeddings
+    __all__.append("SentenceTransformerEmbeddings")
 except ImportError:
-    _OLLAMA_EMBED_AVAILABLE = False
+    pass
 
-__all__ = [
-    "EmbeddingFunctionInterface",
-    "SentenceTransformerEmbeddings",
-    "FastEmbedEmbeddings", 
-]
-if _OLLAMA_EMBED_AVAILABLE:
+try:
+    from .fastembed_embedding import FastEmbedEmbeddings
+    __all__.append("FastEmbedEmbeddings")
+except ImportError:
+    pass
+
+try:
+    from .ollama_embedding import OllamaEmbeddings
     __all__.append("OllamaEmbeddings")
+except ImportError:
+    pass

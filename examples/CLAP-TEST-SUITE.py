@@ -3,22 +3,27 @@ import os
 import shutil
 import time
 import json
-import uuid 
+import uuid
 from dotenv import load_dotenv
 from typing import Any, Dict, List, Optional
 
-
 from clap import (
     Agent, Team, ToolAgent, tool,
-    LLMServiceInterface, GroqService, GoogleOpenAICompatService,
-    EmbeddingFunctionInterface, SentenceTransformerEmbeddings, OllamaEmbeddings, FastEmbedEmbeddings,
-    VectorStoreInterface, ChromaStore, QdrantStore,
-    QueryResult,
+    LLMServiceInterface, GroqService, GoogleOpenAICompatService, 
+    EmbeddingFunctionInterface, 
+    VectorStoreInterface, QueryResult, 
     duckduckgo_search
 )
+
+
 from clap.llm_services.ollama_service import OllamaOpenAICompatService as OllamaService
-from clap.embedding.ollama_embedding import KNOWN_OLLAMA_EMBEDDING_DIMENSIONS
-from clap.embedding.fastembed_embedding import KNOWN_FASTEMBED_DIMENSIONS as FE_KNOWN_DIMS
+
+from clap.embedding.sentence_transformer_embedding import SentenceTransformerEmbeddings
+from clap.embedding.ollama_embedding import OllamaEmbeddings, KNOWN_OLLAMA_EMBEDDING_DIMENSIONS
+from clap.embedding.fastembed_embedding import FastEmbedEmbeddings, KNOWN_FASTEMBED_DIMENSIONS as FE_KNOWN_DIMS
+
+from clap.vector_stores.chroma_store import ChromaStore
+from clap.vector_stores.qdrant_store import QdrantStore
 
 
 from qdrant_client import models as qdrant_models
@@ -26,21 +31,22 @@ QDRANT_CLIENT_INSTALLED = True
 
 
 try:
-    from chromadb.config import Settings as ChromaSettings 
-    CHROMA_CLIENT_INSTALLED = True
+    CHROMA_CLIENT_INSTALLED = True 
+    import chromadb 
 except ImportError:
     CHROMA_CLIENT_INSTALLED = False
 
-from clap.mcp_client.client import MCPClientManager, SseServerConfig
-from pydantic import HttpUrl
 
+
+from clap import MCPClientManager, SseServerConfig
+from pydantic import HttpUrl 
 
 from clap.utils.rag_utils import load_pdf_file, chunk_text_by_fixed_size
 
 load_dotenv()
 
 
-PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf"
+PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/handsonml.pdf"
 DB_BASE_PATH = "./clap_suite_dbs"
 
 GROQ_LLM_MODEL = "llama-3.3-70b-versatile"

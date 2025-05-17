@@ -26,7 +26,7 @@ async def main():
 
     agent = ReactAgent(
         llm_service=groq_llm_service,
-        model="meta-llama/llama-4-maverick-17b-128e-instruct",
+        model="llama3-70b-8192",
         tools=[multiply], 
         mcp_manager=manager,
         mcp_server_names=["adder_server","subtract_server"] 

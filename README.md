@@ -56,8 +56,14 @@ Ensure you have Python 3.10 or later installed.
 
 ```bash
 pip install clap-agents
-Use code with caution.
-Markdown
+```
+
+Ensure you have Python 3.10 or later installed.
+
+```bash
+pip install clap-agents
+
+
 To use specific features, you might need to install optional dependencies:
 # For Qdrant support (includes fastembed)
 pip install "clap-agents[qdrant]"
@@ -73,12 +79,71 @@ pip install "clap-agents[standard_tools,viz]"
 
 # To install all major optional dependencies
 pip install "clap-agents[all]"
-Use code with caution.
-Bash
+```
+
+
 Check the pyproject.toml for the full list of [project.optional-dependencies]. You will also need to have external services like Ollama or Qdrant (if used locally) running.
-Quick Start: Simple Tool-Calling Agent with Ollama
+Depending on the tools or LLM backends you intend to use, you might need additional dependencies listed in the pyproject.toml (e.g., groq, openai, mcp, jsonschema, requests, duckduckgo-search, graphviz). Check the [project.dependencies] and [project.optional-dependencies] sections.
+
+
+## Quick Start: Simple Tool calling Agent with a Local Tool
+This example demonstrates creating a Tool calling agent using the Groq backend and a local tool
+
+```
+from dotenv import load_dotenv
+from clap import ToolAgent
+from clap import duckduckgo_search
+
+load_dotenv()
+
+async def main():
+    agent = ToolAgent(tools=duckduckgo_search, model="meta-llama/llama-4-scout-17b-16e-instruct")
+    user_query = "Search the web for recent news about AI advancements."
+    response = await agent.run(user_msg=user_query)
+    print(f"Response:\n{response}")
+
+asyncio.run(main())
+```
+
+
+## Quick Start: Simple ReAct Agent with a Local Tool
+This example demonstrates creating a ReAct agent using the Groq backend and a local tool.
+
+```
+import asyncio
+import os
+from dotenv import load_dotenv
+from clap import ReactAgent, tool, GroqService
+
+load_dotenv() 
+@tool
+def get_word_length(word: str) -> int:
+    """Calculates the length of a word."""
+    print(f"[Local Tool] Calculating length of: {word}")
+    return len(word)
+
+async def main():
+    groq_service = GroqService() # Your service of choice (either groq or Google)
+    agent = ReactAgent(
+        llm_service=groq_service,
+        model="llama-3.3-70b-versatile", # Or another Groq model
+        tools=[get_word_length], # Provide the local tool
+        # system_prompt="You are a helpful assistant." # Optional base prompt
+    )
+
+    user_query = "How many letters are in the word 'framework'?"
+    response = await agent.run(user_msg=user_query)
+    
+    print(response)
+    
+asyncio.run(main())
+```
+
+## Quick Start: Simple Tool-Calling Agent with Ollama
 This example demonstrates a ToolAgent using a local Ollama model and a local tool.
 Ensure Ollama is running and you have pulled the model (e.g., ollama pull llama3).
+
+```
 import asyncio
 from dotenv import load_dotenv
 from clap import ToolAgent, tool, OllamaService # Assuming OllamaService is your OllamaOpenAICompatService
@@ -108,11 +173,13 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-Use code with caution.
-Python
-Quick Start: RAG Agent with Qdrant and Ollama Embeddings
+
+```
+
+## Quick Start: RAG Agent with Qdrant and Ollama Embeddings
 This example shows an Agent performing RAG using Ollama for embeddings and Qdrant as the vector store.
 Ensure Ollama is running (with nomic-embed-text and llama3 pulled) and Qdrant is running (e.g., via Docker).
+```
 import asyncio
 import os
 import shutil
@@ -165,30 +232,22 @@ async def main():
     await ollama_llm_service.close()
     if os.path.exists(DB_PATH): shutil.rmtree(DB_PATH)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
+```
+
+## Exploring Further
 
 
-Exploring Further
-Multi-Agent Teams: See examples/test_clap_comprehensive_suite.py and other team examples for setting up sequential or parallel agent workflows.
-MCP Integration: Check examples/test_clap_comprehensive_suite.py (ensure corresponding MCP servers from examples/simple_mcp.py etc. are running).
-Other LLM Services (Groq, Google Gemini): Modify the Quick Starts to use GroqService or GoogleOpenAICompatService (ensure API keys are set).
-Different Vector Stores & Embedding Functions: Experiment with ChromaStore, QdrantStore, SentenceTransformerEmbeddings, FastEmbedEmbeddings, and OllamaEmbeddings as shown in the comprehensive test suite.
+# Multi-Agent Teams: See examples/test_clap_comprehensive_suite.py and other team examples for setting up sequential or parallel agent workflows.
+
+# MCP Integration: Check examples/test_clap_comprehensive_suite.py (ensure corresponding MCP servers from examples/simple_mcp.py etc. are running).
+
+# Other LLM Services (Groq, Google Gemini , Ollama): Modify the Quick Starts to use GroqService or GoogleOpenAICompatService (ensure API keys are set).
+
+# Different Vector Stores & Embedding Functions: Experiment with ChromaStore, QdrantStore, SentenceTransformerEmbeddings, FastEmbedEmbeddings, and OllamaEmbeddings as shown in the comprehensive test suite.
+
 License
 This project is licensed under the terms of the Apache License 2.0. See the LICENSE file for details.
-**Key README Changes:**
 
-*   **Updated PyPI Badges:** Changed `CLAP` to `clap-agents`.
-*   **Introduction:** Slightly refined.
-*   **Key Features:**
-    *   Added a new top-level section: "**Retrieval Augmented Generation (RAG) Capabilities**".
-    *   Listed `VectorStoreInterface`, supported DBs (`ChromaStore`, `QdrantStore`).
-    *   Listed `EmbeddingFunctionInterface` and supported wrappers (`SentenceTransformerEmbeddings`, `OllamaEmbeddings`, `FastEmbedEmbeddings`), adding a note about FastEmbed performance.
-    *   Mentioned RAG-aware agents and utilities.
-    *   In "Pluggable LLM Backends," explicitly added **Ollama (Local LLMs)** with the `OllamaOpenAICompatService` (or `OllamaService` if you alias it).
-*   **Installation:** Updated `pip install clap-agents` and added examples for installing optional dependencies for vector stores and Ollama.
-*   **Quick Starts:**
-    *   The first "Simple Tool calling Agent" now explicitly mentions which LLM service it defaults to or how to specify one (I kept it as your original, which implied Groq due to the model name, but `ToolAgent` now requires an explicit `llm_service`). I've updated it to use Ollama as an example to showcase new capabilities.
-    *   Added a **new Quick Start for RAG** using Qdrant and Ollama embeddings to showcase this major new feature.
-*   **Exploring Further:** Updated to point to the comprehensive test suite for more examples.
+
 

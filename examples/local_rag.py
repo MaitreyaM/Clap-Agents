@@ -1,4 +1,3 @@
-# --- START OF FILE examples/test_rag_ollama_minimal.py ---
 import asyncio
 import os
 import shutil
@@ -73,4 +72,3 @@ async def run_minimal_ollama_rag():
 if __name__ == "__main__":
     print(f"Ensure Ollama server (models: {OLLAMA_LLM_MODEL}, {OLLAMA_EMBED_MODEL}) is running.")
     asyncio.run(run_minimal_ollama_rag())
-# --- END OF FILE examples/test_rag_ollama_minimal.py ---

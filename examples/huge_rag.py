@@ -15,7 +15,7 @@ from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunct
 DEFAULT_EF = SentenceTransformerEmbeddingFunction()
 
 load_dotenv()
-PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf"
+PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/handsonml.pdf"
 CHROMA_DB_PATH = "./large_pdf_chroma_db" 
 COLLECTION_NAME = "ml_book_rag"
 CHUNK_SIZE = 500    

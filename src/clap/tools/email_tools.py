@@ -223,6 +223,5 @@ async def fetch_recent_emails(folder: str = "INBOX", limit: int = 5) -> str:
     Returns:
         A formatted string containing details of the recent emails or an error message.
     """
-    # Run synchronous IMAP fetching in thread
     print(f"[Email Tool] Fetching up to {limit} emails from folder '{folder}'...")
     return await anyio.to_thread.run_sync(_fetch_emails_sync, folder, limit)

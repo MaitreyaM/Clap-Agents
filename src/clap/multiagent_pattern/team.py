@@ -1,13 +1,21 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Dict, List
-
+from typing import Any, Dict, List , Optional
 from colorama import Fore
-from graphviz import Digraph
-
 from clap.utils.logging import fancy_print
 from clap.multiagent_pattern.agent import Agent
+
+_GRAPHVIZ_AVAILABLE = False
+_Digraph_Placeholder_Type = Any 
+
+try:
+    from graphviz import Digraph as ImportedDigraph
+    from graphviz.backend import ExecutableNotFound as GraphvizExecutableNotFound 
+    _Digraph_Placeholder_Type = ImportedDigraph
+    _GRAPHVIZ_AVAILABLE = True
+except ImportError:
+    pass
 
 class Team:
     """
@@ -69,13 +77,45 @@ class Team:
              )
         return sorted_agents
 
-    def plot(self):
-        dot = Digraph(format="png")
-        for agent in self.agents: dot.node(agent.name)
-        for agent in self.agents:
-             for dependent in agent.dependents:
-                  if dependent in self.agents: dot.edge(agent.name, dependent.name)
-        return dot
+    def plot(self) -> Optional[_Digraph_Placeholder_Type]:
+        """
+        Generates a visual representation of the agent team's dependency graph.
+        Requires the 'graphviz' Python library and the Graphviz system software to be installed.
+        If Graphviz is not available, prints a warning and returns None.
+
+        Returns:
+            Optional[graphviz.Digraph]: A Digraph object if successful, else None.
+        """
+        if not _GRAPHVIZ_AVAILABLE:
+            print(
+                f"{Fore.YELLOW}CLAP Warning: The 'graphviz' Python library is not installed. "
+                f"To use the plot() feature, please install it (e.g., pip install \"clap-agents[viz]\").{Fore.RESET}"
+            )
+            return None
+        
+        dot: Optional[_Digraph_Placeholder_Type] = None
+        try:
+            dot = _Digraph_Placeholder_Type(format="png") 
+            for agent in self.agents:
+                dot.node(agent.name) 
+            for agent in self.agents:
+                 for dependent in agent.dependents: 
+                      if dependent in self.agents: 
+                          dot.edge(agent.name, dependent.name) 
+            print(f"{Fore.GREEN}Team dependency graph created. To render, call .render() or .view() on the returned object.{Fore.RESET}")
+            return dot
+        except NameError: 
+            print(f"{Fore.YELLOW}CLAP Warning: Graphviz Digraph class not found (likely import issue). Plotting unavailable.{Fore.RESET}")
+            return None
+        except GraphvizExecutableNotFound:
+            print(
+                f"{Fore.RED}CLAP Error: Graphviz system software (dot executable) not found in PATH. "
+                f"Team.plot() requires it to generate images. Please install Graphviz for your OS and ensure 'dot' is in your PATH.{Fore.RESET}"
+            )
+            return None
+        except Exception as e:
+            print(f"{Fore.RED}CLAP Error: An unexpected error occurred during graph plotting: {e}{Fore.RESET}")
+            return None
 
     async def run(self):
         """
