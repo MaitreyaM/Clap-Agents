@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clap-agents"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python framework for building cognitive agentic patterns including ReAct agents, Multi-Agent Teams, native tool calling, and MCP client integration."
 readme = "README.md"
 requires-python = ">=3.10"
