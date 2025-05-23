@@ -1,6 +1,6 @@
 import json
 import functools
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast, Callable, Coroutine
 import asyncio 
 import anyio
 
@@ -38,7 +38,7 @@ from clap.embedding.base_embedding import EmbeddingFunctionInterface as ClapEFIn
 
 class _AsyncEFWrapperForChroma:
     """Wraps an async CLAP EmbeddingFunctionInterface to be callable synchronously by Chroma."""
-    def __init__(self, async_ef_call: asyncio.coroutine, loop: asyncio.AbstractEventLoop):
+    def __init__(self, async_ef_call: Callable[..., Coroutine[Any, Any, Embeddings]], loop: asyncio.AbstractEventLoop):
         self._async_ef_call = async_ef_call
         self._loop = loop
 

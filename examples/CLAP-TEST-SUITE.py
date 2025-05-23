@@ -253,17 +253,17 @@ async def main():
     
     fast_ef: Optional[FastEmbedEmbeddings] = None
     # FE_KNOWN_DIMS is imported at the top
-    # try:
-    #     if FASTEMBED_MODEL in FE_KNOWN_DIMS:
-    #         fast_ef = FastEmbedEmbeddings(model_name=FASTEMBED_MODEL)
-    #     else:
-    #         print(f"Warning: FastEmbed model '{FASTEMBED_MODEL}' not in FE_KNOWN_DIMS. FastEmbed RAG will be skipped.")
-    # except NameError: # If FastEmbedEmbeddings or FE_KNOWN_DIMS not defined due to import error
-    #     print("FastEmbedEmbeddings or its KNOWN_DIMS not available.")
-    # except Exception as e:
-    #     print(f"Could not initialize FastEmbedEmbeddings: {e}")
-    # if fast_ef: print("FastEmbedEmbeddings initialized (RAG tests may be commented out).")
-    print("INFO: FastEmbed RAG tests are currently commented out to save time.")
+    try:
+        if FASTEMBED_MODEL in FE_KNOWN_DIMS:
+            fast_ef = FastEmbedEmbeddings(model_name=FASTEMBED_MODEL)
+        else:
+            print(f"Warning: FastEmbed model '{FASTEMBED_MODEL}' not in FE_KNOWN_DIMS. FastEmbed RAG will be skipped.")
+    except NameError: # If FastEmbedEmbeddings or FE_KNOWN_DIMS not defined due to import error
+        print("FastEmbedEmbeddings or its KNOWN_DIMS not available.")
+    except Exception as e:
+        print(f"Could not initialize FastEmbedEmbeddings: {e}")
+    if fast_ef: print("FastEmbedEmbeddings initialized (RAG tests may be commented out).")
+    # print("INFO: FastEmbed RAG tests are currently commented out to save time.")
 
 
     mcp_manager = get_mcp_manager()

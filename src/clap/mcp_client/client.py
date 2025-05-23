@@ -113,14 +113,16 @@ class MCPClientManager:
                  await exit_stack.aclose()
                  print(f"{Fore.GREEN}Disconnected from MCP server: {server_name}{Fore.RESET}")
 
-    async def disconnect_all(self):
-        """Disconnects from all currently connected servers."""
-        server_names = list(self.sessions.keys())
-        print(f"{Fore.YELLOW}Disconnecting from all servers: {server_names}{Fore.RESET}")
         
-        tasks = [self.disconnect(name) for name in server_names]
-        await asyncio.gather(*tasks, return_exceptions=True) 
-        print(f"{Fore.GREEN}Finished disconnecting all servers.{Fore.RESET}")
+    async def disconnect_all(self):
+        server_names = list(self.sessions.keys())
+        print(f"{Fore.YELLOW}MCPClientManager: Disconnecting from all servers ({len(server_names)})...{Fore.RESET}")
+        for name in server_names:
+            try:
+                await self.disconnect(name)
+            except Exception as e:
+                print(f"{Fore.RED}MCPClientManager: Error during disconnect of '{name}': {e}{Fore.RESET}")
+        print(f"{Fore.GREEN}MCPClientManager: Finished disconnecting all servers.{Fore.RESET}")
 
     async def list_remote_tools(self, server_name: str) -> List[types.Tool]:
         """
@@ -192,4 +194,3 @@ class MCPClientManager:
         except Exception as e:
              print(f"{Fore.RED}Error calling tool '{tool_name}' on server '{server_name}': {e}{Fore.RESET}")
              raise RuntimeError(f"Failed to call tool '{tool_name}' on '{server_name}'.") from e
-
