@@ -97,5 +97,4 @@ class OllamaOpenAICompatService(LLMServiceInterface):
             if hasattr(self._client, "close"): await self._client.close() # For openai >1.0
             elif hasattr(self._client, "_client") and hasattr(self._client._client, "is_closed"): # For httpx client in openai <1.0
                  if not self._client._client.is_closed: await self._client._client.aclose() # type: ignore
-        # print("OllamaService: Client closed.")
-# --- END OF FILE ---
+        
