@@ -1,4 +1,3 @@
-# --- START OF agentic_patterns/llm_services/google_openai_compat_service.py ---
 
 import os
 import json
