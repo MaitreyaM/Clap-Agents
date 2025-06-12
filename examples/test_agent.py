@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from clap import ToolAgent
 from clap import duckduckgo_search
 from clap import GroqService
-from clap.utils.completions import GroqClient
+#from clap.utils.completions import GroqClient
 
 load_dotenv()
 

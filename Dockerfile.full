@@ -1,0 +1,13 @@
+# Dockerfile.full - For complete framework testing
+
+FROM python:3.11-slim
+WORKDIR /app
+
+# Copy all project files first to ensure pip can find the local package
+COPY . .
+
+# Install the project with ALL optional dependencies
+RUN pip install --no-cache-dir ".[all]"
+
+# Set the default command
+CMD ["bash"]

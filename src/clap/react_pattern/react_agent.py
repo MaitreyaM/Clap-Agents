@@ -54,10 +54,12 @@ class ReactAgent:
         mcp_server_names: Optional[List[str]] = None,  
         vector_store: Optional[VectorStoreInterface] = None, 
         system_prompt: str = "",
+        parallel_tool_calls: bool = True,
     ) -> None:
         self.llm_service = llm_service
         self.model = model
         self.agent_name = agent_name
+        self.parallel_tool_calls = parallel_tool_calls
         self.system_prompt = (system_prompt + "\n\n" + CORE_SYSTEM_PROMPT).strip()
 
         
@@ -275,30 +277,45 @@ class ReactAgent:
         return {tool_call_id: result_str}
 
 
-
-
     
     async def process_tool_calls(self, tool_calls: List[LLMToolCall]) -> Dict[str, Any]:
-        """Processes multiple tool calls concurrently."""
-        observations = {}
+        """
+        Processes tool calls using the configured strategy (parallel or sequential).
+        """
         if not isinstance(tool_calls, list):
             print(f"{Fore.RED}Error: Expected a list of LLMToolCall, got {type(tool_calls)}{Fore.RESET}")
-            return observations 
+            return {}
 
-        tasks = [self._execute_single_tool_call(tc) for tc in tool_calls]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        observations = {}
 
-        for result in results:
-            if isinstance(result, dict) and len(result) == 1:
-                observations.update(result)
-            elif isinstance(result, Exception):
-                 
-                 print(f"{Fore.RED}Error during concurrent tool execution gather: {result}{Fore.RESET}")
-                 
-                 # observations[f"error_{len(observations)}"] = f"Tool execution failed: {result}"
-            else:
-                 print(f"{Fore.RED}Error: Unexpected item in tool execution results: {result}{Fore.RESET}")
+        if self.parallel_tool_calls:
+            # PARALLEL EXECUTION (FASTER, BUT CAN CAUSE RACE CONDITIONS) 
+            print(f"{Fore.BLUE}[{self.agent_name}] Executing {len(tool_calls)} tool calls in PARALLEL...{Fore.RESET}")
+            tasks = [self._execute_single_tool_call(tc) for tc in tool_calls]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
+            for result in results:
+                if isinstance(result, dict) and len(result) == 1:
+                    observations.update(result)
+                elif isinstance(result, Exception):
+                    print(f"{Fore.RED}Error during parallel tool execution gather: {result}{Fore.RESET}")
+                else:
+                    print(f"{Fore.RED}Error: Unexpected item in parallel tool execution results: {result}{Fore.RESET}")
+
+        else:
+            # SEQUENTIAL EXECUTION 
+            print(f"{Fore.YELLOW}[{self.agent_name}] Executing {len(tool_calls)} tool calls SEQUENTIALLY...{Fore.RESET}")
+            for tool_call in tool_calls:
+                try:
+                    result = await self._execute_single_tool_call(tool_call)
+                    if isinstance(result, dict) and len(result) == 1:
+                        observations.update(result)
+                    else:
+                        print(f"{Fore.RED}Error: Unexpected item in sequential tool execution result: {result}{Fore.RESET}")
+                except Exception as e:
+                    print(f"{Fore.RED}Error during sequential execution of {tool_call.function_name}: {e}{Fore.RESET}")
+                    observations[tool_call.id] = f"An unexpected error occurred: {e}"
+                
         return observations
 
 

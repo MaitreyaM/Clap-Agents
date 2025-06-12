@@ -1,13 +1,11 @@
-# --- START OF MODIFIED examples/tool_agent_rag.py ---
 import asyncio
 import os
 import shutil
 import time
 import json
-import uuid # <--- IMPORT THE uuid MODULE
+import uuid 
 from dotenv import load_dotenv
 
-# ... (other imports like ToolAgent, OllamaOpenAICompatService, OllamaEmbeddings, QdrantStore, etc.)
 from clap import ToolAgent
 from clap.llm_services.ollama_service import OllamaOpenAICompatService
 from clap.embedding.ollama_embedding import OllamaEmbeddings, KNOWN_OLLAMA_EMBEDDING_DIMENSIONS
@@ -18,7 +16,6 @@ from qdrant_client import models as qdrant_models
 
 load_dotenv()
 
-# ... (Configuration constants remain the same) ...
 OLLAMA_HOST = "http://localhost:11434"
 OLLAMA_LLM_FOR_AGENT = "llama3.2:latest"
 OLLAMA_MODEL_FOR_EMBEDDINGS = "nomic-embed-text"
@@ -45,12 +42,12 @@ async def main():
         path=RAG_DB_PATH, recreate_collection_if_exists=True,
         distance_metric=qdrant_models.Distance.COSINE
     )
-    chunks = []; # ids = []; # No longer needed here if generating UUIDs per chunk
-    all_ids = [] # Use a new list for UUIDs
+    chunks = []; 
+    all_ids = [] 
     metadatas = []
 
     doc_counter = 0
-    for i, doc_text_content in enumerate(SAMPLE_DOCS): # Renamed 'doc' to avoid conflict if you use 'doc' later
+    for i, doc_text_content in enumerate(SAMPLE_DOCS): 
         doc_chunks = chunk_text_by_fixed_size(doc_text_content, RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP)
         for j, chunk in enumerate(doc_chunks):
             chunks.append(chunk)
@@ -85,4 +82,3 @@ if __name__ == "__main__":
     print(f"Ensure Ollama (models: {OLLAMA_LLM_FOR_AGENT}, {OLLAMA_MODEL_FOR_EMBEDDINGS}) is running.")
     asyncio.run(main())
 
-# --- END OF MODIFIED examples/tool_agent_rag.py ---

@@ -56,7 +56,8 @@ class Agent:
         llm_service (Optional[LLMServiceInterface]): Service for LLM calls (defaults to GroqService).
         mcp_manager (Optional[MCPClientManager]): Shared MCP client manager.
         mcp_server_names (Optional[List[str]]): MCP servers this agent uses.
-        vector_store (Optional[VectorStoreInterface]): Vector store instance for RAG. 
+        vector_store (Optional[VectorStoreInterface]): Vector store instance for RAG.
+        parallel_tool_calls : Determine parallel or sequential execution of agent's tools. 
         # embedding_function(Optional[EmbeddingFunction]): EF if needed by agent. 
 
     """
@@ -71,7 +72,8 @@ class Agent:
         llm_service: Optional[LLMServiceInterface] = None,
         mcp_manager: Optional[MCPClientManager] = None,
         mcp_server_names: Optional[List[str]] = None,
-        vector_store: Optional[VectorStoreInterface] = None, 
+        vector_store: Optional[VectorStoreInterface] = None,
+        parallel_tool_calls: bool = True , 
         # embedding_function: Optional[EmbeddingFunction] = None,
 
     ):
@@ -98,7 +100,8 @@ class Agent:
             tools=self.local_tools, 
             mcp_manager=self.mcp_manager,
             mcp_server_names=self.mcp_server_names,
-            vector_store=self.vector_store 
+            vector_store=self.vector_store, 
+            parallel_tool_calls=parallel_tool_calls 
         )
 
         self.dependencies: List['Agent'] = []

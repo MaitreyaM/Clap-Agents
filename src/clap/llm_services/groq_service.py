@@ -18,7 +18,6 @@ class GroqService(LLMServiceInterface):
                     If None, a new client will be created using environment variables.
         """
         self.client = client or AsyncGroq()
-        # Add any other Groq-specific initialization here if needed
 
     async def get_llm_response(
         self,
@@ -26,7 +25,6 @@ class GroqService(LLMServiceInterface):
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: str = "auto",
-        # Add other relevant Groq parameters if desired, e.g., temperature, max_tokens
         # temperature: Optional[float] = None,
         # max_tokens: Optional[int] = None,
     ) -> StandardizedLLMResponse:

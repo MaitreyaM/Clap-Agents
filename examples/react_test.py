@@ -29,7 +29,7 @@ async def main():
         model="llama3-70b-8192",
         tools=[multiply], 
         mcp_manager=manager,
-        mcp_server_names=["adder_server","subtract_server"] 
+        mcp_server_names=["adder_server","subtract_server"],
     )
 
     user_query = "Calculate ((15 + 7) - 5) * 2"

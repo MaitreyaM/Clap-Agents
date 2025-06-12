@@ -1,4 +1,3 @@
-# --- START OF agentic_patterns/llm_services/google_openai_compat_service.py ---
 
 import os
 import json
@@ -56,7 +55,7 @@ class GoogleOpenAICompatService(LLMServiceInterface):
         Sends messages via the OpenAI SDK (to Google's endpoint) and returns a standardized response.
 
         Args:
-            model: The Google model identifier (e.g., "gemini-1.5-flash").
+            model: The Google model identifier (e.g., "gemini-2.0-flash").
             messages: Chat history in the OpenAI dictionary format.
             tools: Tool schemas in the OpenAI function format.
             tool_choice: Tool choice setting ("auto", "none", etc.).
@@ -92,6 +91,7 @@ class GoogleOpenAICompatService(LLMServiceInterface):
                 for tc in message.tool_calls:
                     tool_call_id = getattr(tc, 'id', None)
                     if not tool_call_id:
+                        #raise ValueError("Received a tool call from the Gemini API without a required 'id'.")
                         tool_call_id = f"compat_call_{uuid.uuid4().hex[:6]}" 
                         print(f"{Fore.YELLOW}Warning: Tool call from Google compat layer missing ID. Generated fallback: {tool_call_id}{Fore.RESET}")
 

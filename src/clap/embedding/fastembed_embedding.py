@@ -36,7 +36,7 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
         if not _FASTEMBED_LIB_AVAILABLE:
             raise ImportError(
                 "The 'fastembed' library is required to use FastEmbedEmbeddings. "
-                "Install with 'pip install fastembed' or 'pip install \"clap-agents[qdrant]\"' (if qdrant includes it as an extra)."
+                "Install with 'pip install fastembed' "
             )
 
         self.model_name = model_name

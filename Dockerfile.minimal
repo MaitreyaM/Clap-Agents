@@ -1,0 +1,19 @@
+# The Corrected Dockerfile for CLAP Framework
+
+# Use Python 3.11 as the official, stable, and performant base image.
+FROM python:3.11-slim
+
+# Set a consistent working directory inside the container.
+WORKDIR /app
+
+# --- THE FIX IS HERE ---
+# Copy ALL project files into the container FIRST.
+# This ensures that when pip runs, it has access to your `src` directory.
+COPY . .
+
+# Now, with all the files present, run the pip install command.
+# This will install the core dependencies AND your local `clap-agents` package correctly.
+RUN pip install --no-cache-dir .
+
+# The default command to run when the container starts.
+CMD ["bash"]

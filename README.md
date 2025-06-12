@@ -235,6 +235,83 @@ async def main():
 asyncio.run(main())
 ```
 
+
+New in v0.3.0: Web3 & On-Chain Agent Capabilities
+CLAP now includes a powerful toolkit for building autonomous agents that can interact directly with EVM-compatible blockchains like Ethereum. Your agents can now hold assets, execute transactions, and interact with smart contracts, opening up a new world of possibilities in DeFi, DAOs, and on-chain automation.
+Setup
+To enable Web3 capabilities, install the web3 extra:
+pip install "clap-agents[web3]"
+Use code with caution.
+Bash
+You will also need to set the following variables in your .env file:
+# Your connection to the blockchain (e.g., from Alchemy or Infura)
+WEB3_PROVIDER_URL="https://sepolia.infura.io/v3/YOUR_API_KEY"
+
+# The private key for your agent's wallet.
+# WARNING: For testing only. Do not use a key with real funds.
+AGENT_PRIVATE_KEY="0xYourTestnetPrivateKeyHere"
+
+
+
+# Core Web3 Tools
+The framework now includes a suite of pre-built, robust tools for on-chain interaction:
+
+get_erc20_balance: Checks the balance of any standard ERC-20 token in a wallet.
+
+wrap_eth: Converts native ETH into WETH (Wrapped Ether), a necessary step for interacting with many DeFi protocols.
+
+swap_exact_tokens_for_tokens: Executes trades on Uniswap V3, allowing your agent to autonomously rebalance its portfolio.
+
+get_token_price: Fetches real-time asset prices from on-chain Chainlink oracles, enabling data-driven decision-making.
+
+interact_with_contract: A powerful, generic tool to call any function on any smart contract, given its address and ABI.
+
+
+# Quick Start: A Simple DeFi Agent
+This example demonstrates an agent that can wrap ETH and then swap it for another token, a common DeFi task.
+# examples/simple_defi_agent.py
+import os
+import asyncio
+from dotenv import load_dotenv
+from clap import ReactAgent, GroqService
+from clap.tools import wrap_eth, swap_exact_tokens_for_tokens
+
+load_dotenv()
+
+# --- Configuration ---
+WETH_ADDRESS = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14" # WETH on Sepolia
+USDC_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7a98" # USDC on Sepolia
+
+async def main():
+    # We use a ReactAgent for multi-step reasoning
+    agent = ReactAgent(
+        llm_service=GroqService(),
+        tools=[wrap_eth, swap_exact_tokens_for_tokens],
+        model="llama-3.3-70b-versatile",
+        system_prompt="You are a DeFi agent. You execute financial transactions precisely as instructed.",
+        # For on-chain tasks, sequential execution is safer to avoid race conditions
+        parallel_tool_calls=False 
+    )
+
+    # A clear, two-step task for the agent
+    user_query = f"""
+    First, wrap 0.01 ETH.
+    Second, after the wrap is successful, swap that 0.01 WETH for USDC.
+    The WETH address is {WETH_ADDRESS} and the USDC address is {USDC_ADDRESS}.
+    """
+
+    print("--- Running Simple DeFi Agent ---")
+    response = await agent.run(user_msg=user_query, max_rounds=5)
+    
+    print("\n--- Agent Final Response ---")
+    print(response)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+This new capability transforms your CLAP agents from simple observers into active participants in the decentralized economy.
+
 ## Exploring Further
 
 
