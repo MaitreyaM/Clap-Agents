@@ -3,18 +3,15 @@ from web3 import Web3
 from clap.tool_pattern.tool import tool
 import json 
 
-# Environment variables are loaded by the main application script.
 
 WEB3_PROVIDER_URL = os.getenv("WEB3_PROVIDER_URL")
 AGENT_PRIVATE_KEY = os.getenv("AGENT_PRIVATE_KEY")
 
-# --- Official Testnet Addresses ---
 WETH_CONTRACT_ADDRESS = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"
 UNISWAP_ROUTER_ADDRESS = "0x3bFA4769FB09eefC5a399D6D47036A5d3fA67B54"
 CHAINLINK_ETH_USD_PRICE_FEED_ADDRESS = "0x694AA1769357215DE4FAC081bf1f309aDC325306"
 
 
-# --- Correct, Centralized ABIs ---
 CHAINLINK_PRICE_FEED_ABI = """
 [
   {
@@ -106,14 +103,11 @@ def get_token_price(token_pair: str) -> str:
             abi=CHAINLINK_PRICE_FEED_ABI
         )
         
-        # The latestRoundData function returns a tuple of values. The price is the second element.
         latest_data = price_feed_contract.functions.latestRoundData().call()
         price_raw = latest_data[1]
         
-        # The price feed also has a 'decimals' function to tell us where to put the decimal point.
         price_decimals = price_feed_contract.functions.decimals().call()
         
-        # Convert the raw price to a human-readable format
         price = price_raw / (10 ** price_decimals)
         
         return f"The latest price for {token_pair} is ${price:.2f}"
@@ -174,7 +168,6 @@ def interact_with_contract(
     try:
         _initialize_web3()
 
-        # 1. Validate inputs
         if not w3.is_address(contract_address):
             return "Error: Invalid 'contract_address'."
         try:
@@ -182,20 +175,17 @@ def interact_with_contract(
         except json.JSONDecodeError:
             return "Error: The provided 'abi' is not a valid JSON string."
 
-        # 2. Create the contract object
         contract = w3.eth.contract(address=contract_address, abi=abi_json)
 
-        # 3. Get the function object from the contract
         func_to_call = getattr(contract.functions, function_name)
         if not func_to_call:
             return f"Error: Function '{function_name}' not found in the contract's ABI."
 
-        # 4. Prepare the function call with its arguments
         prepared_func = func_to_call(*function_args)
 
-        # 5. Execute as either a read-only 'call' or a write 'transaction'
+    
         if is_write_transaction:
-            # This is a state-changing transaction that costs gas
+           
             nonce = w3.eth.get_transaction_count(agent_account.address)
             tx = prepared_func.build_transaction({
                 'from': agent_account.address,
@@ -206,9 +196,9 @@ def interact_with_contract(
             tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
             return f"Write transaction sent successfully. Transaction hash: {w3.to_hex(tx_hash)}"
         else:
-            # This is a read-only call that is free and instant
+            
             result = prepared_func.call()
-            # Convert the result to a JSON string to ensure it's readable by the LLM
+           
             return json.dumps(result)
 
     except Exception as e:
@@ -224,7 +214,7 @@ def get_erc20_balance(token_address: str, wallet_address: str) -> str:
         
         token_contract = w3.eth.contract(address=chk_token_address, abi=ERC20_STANDARD_ABI)
         
-        # This will now work correctly with a real contract address
+
         decimals = token_contract.functions.decimals().call()
         raw_balance = token_contract.functions.balanceOf(chk_wallet_address).call()
             
@@ -232,7 +222,7 @@ def get_erc20_balance(token_address: str, wallet_address: str) -> str:
         return str(balance)
         
     except Exception as e:
-        # A simple, honest error handler for genuine problems.
+       
         return f"Error in get_erc20_balance for token {token_address}: {e}"
 
 @tool
@@ -278,12 +268,11 @@ def swap_tokens_for_tokens(token_in_address: str, token_out_address: str, amount
         signed_approve_tx = w3.eth.account.sign_transaction(approve_tx, private_key=os.getenv("AGENT_PRIVATE_KEY"))
         approve_tx_hash = w3.eth.send_raw_transaction(signed_approve_tx.raw_transaction)
         
-        # --- THE FIX ---
-        # Wait for the approval transaction to be confirmed.
+       
         print(f"Waiting for approval transaction {w3.to_hex(approve_tx_hash)} to be confirmed...")
         w3.eth.wait_for_transaction_receipt(approve_tx_hash)
 
-        # Step 2: Swap
+        
         uniswap_router = w3.eth.contract(address=chk_router_address, abi=UNISWAP_ABI)
         swap_params = (chk_token_in, chk_token_out, fee, agent_account.address, amount_in_wei, 0, 0)
         

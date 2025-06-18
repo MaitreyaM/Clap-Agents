@@ -32,7 +32,6 @@ class LLMServiceInterface(abc.ABC):
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: str = "auto",
-        # Optional: 
         # temperature: Optional[float] = None,
         # max_tokens: Optional[int] = None,
     ) -> StandardizedLLMResponse:

@@ -236,24 +236,26 @@ asyncio.run(main())
 ```
 
 
-New in v0.3.0: Web3 & On-Chain Agent Capabilities
+## New in v0.3.0: Web3 & On-Chain Agent Capabilities
 CLAP now includes a powerful toolkit for building autonomous agents that can interact directly with EVM-compatible blockchains like Ethereum. Your agents can now hold assets, execute transactions, and interact with smart contracts, opening up a new world of possibilities in DeFi, DAOs, and on-chain automation.
 Setup
 To enable Web3 capabilities, install the web3 extra:
+```
 pip install "clap-agents[web3]"
-Use code with caution.
-Bash
+```
+
 You will also need to set the following variables in your .env file:
+```
 # Your connection to the blockchain (e.g., from Alchemy or Infura)
 WEB3_PROVIDER_URL="https://sepolia.infura.io/v3/YOUR_API_KEY"
 
 # The private key for your agent's wallet.
 # WARNING: For testing only. Do not use a key with real funds.
 AGENT_PRIVATE_KEY="0xYourTestnetPrivateKeyHere"
+```
 
 
-
-# Core Web3 Tools
+## Core Web3 Tools
 The framework now includes a suite of pre-built, robust tools for on-chain interaction:
 
 get_erc20_balance: Checks the balance of any standard ERC-20 token in a wallet.
@@ -267,9 +269,10 @@ get_token_price: Fetches real-time asset prices from on-chain Chainlink oracles,
 interact_with_contract: A powerful, generic tool to call any function on any smart contract, given its address and ABI.
 
 
-# Quick Start: A Simple DeFi Agent
+## Quick Start: A Simple DeFi Agent
 This example demonstrates an agent that can wrap ETH and then swap it for another token, a common DeFi task.
-# examples/simple_defi_agent.py
+```
+
 import os
 import asyncio
 from dotenv import load_dotenv
@@ -308,7 +311,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
+```
 
 This new capability transforms your CLAP agents from simple observers into active participants in the decentralized economy.
 
@@ -325,6 +328,5 @@ This new capability transforms your CLAP agents from simple observers into activ
 
 License
 This project is licensed under the terms of the Apache License 2.0. See the LICENSE file for details.
-
 
 

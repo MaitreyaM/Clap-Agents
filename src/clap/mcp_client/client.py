@@ -39,7 +39,7 @@ class MCPClientManager:
         self._connect_locks: Dict[str, asyncio.Lock] = {
              name: asyncio.Lock() for name in server_configs
         }
-        self._manager_lock = asyncio.Lock() # General lock for manager state
+        self._manager_lock = asyncio.Lock() 
 
     async def _ensure_connected(self, server_name: str):
         """

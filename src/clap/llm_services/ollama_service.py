@@ -64,27 +64,35 @@ class OllamaOpenAICompatService(LLMServiceInterface):
         if not request_model: raise ValueError("Ollama model name not specified.")
         try:
             api_kwargs: Dict[str, Any] = {"messages": messages, "model": request_model}
+
             if tools and tool_choice != "none":
                 api_kwargs["tools"] = tools
                 if isinstance(tool_choice, dict) or tool_choice in ["auto", "required", "none"]: api_kwargs["tool_choice"] = tool_choice
             else: api_kwargs["tools"] = None; api_kwargs["tool_choice"] = None
+
             if temperature is not None: api_kwargs["temperature"] = temperature
             if max_tokens is not None: api_kwargs["max_tokens"] = max_tokens
             api_kwargs = {k: v for k, v in api_kwargs.items() if v is not None}
             # print(f"OllamaService: Sending request to model '{request_model}'")
             response = await self._client.chat.completions.create(**api_kwargs)
+
             message = response.choices[0].message
+
             text_content = message.content
             tool_calls_std: List[LLMToolCall] = []
+
             if message.tool_calls:
                 for tc in message.tool_calls:
                     if tc.id and tc.function and tc.function.name and tc.function.arguments is not None:
                         tool_calls_std.append(LLMToolCall(id=tc.id, function_name=tc.function.name, function_arguments_json_str=tc.function.arguments))
                     else: print(f"{Fore.YELLOW}Warning: Incomplete tool_call from Ollama: {tc}{Fore.RESET}")
+
             return StandardizedLLMResponse(text_content=text_content, tool_calls=tool_calls_std)
+        
         except _OpenAIError_Placeholder_Type as e: # Use placeholder
             err_msg = f"Ollama (OpenAI Compat) API Error: {e}"
             if hasattr(e, 'response') and e.response and hasattr(e.response, 'text'): err_msg += f" - Details: {e.response.text}"
+            
             print(f"{Fore.RED}{err_msg}{Fore.RESET}")
             return StandardizedLLMResponse(text_content=err_msg)
         except Exception as e:

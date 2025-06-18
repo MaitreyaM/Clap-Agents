@@ -1,9 +1,7 @@
-# examples/verify_weth_balance.py
 import os
 from dotenv import load_dotenv
 from web3 import Web3
 
-# --- Configuration ---
 load_dotenv()
 WEB3_PROVIDER_URL = os.getenv("WEB3_PROVIDER_URL")
 if not WEB3_PROVIDER_URL:
@@ -14,7 +12,6 @@ ADDRESS_WITH_WETH = "0x785239105435919318a804391305417B62657e05" # An address kn
 AGENT_ADDRESS = Web3().eth.account.from_key(os.getenv("AGENT_PRIVATE_KEY")).address
 
 
-# Standard ERC20 ABI to check balance and decimals
 ERC20_ABI = """
 [
   {"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},

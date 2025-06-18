@@ -16,9 +16,11 @@ def get_fn_signature(fn: Callable) -> dict:
     sig = inspect.signature(fn)
     for name, type_hint in fn.__annotations__.items():
         if name == "return": continue
+        
         param_type_name = getattr(type_hint, "__name__", str(type_hint))
         schema_type = type_mapping.get(param_type_name.lower(), "string") 
         parameters["properties"][name] = {"type": schema_type}
+
         if sig.parameters[name].default is inspect.Parameter.empty:
             parameters["required"].append(name)
     if not parameters.get("required"): 

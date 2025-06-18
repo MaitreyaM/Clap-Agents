@@ -57,7 +57,7 @@ class FastEmbedEmbeddings(EmbeddingFunctionInterface):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize fastembed model '{self.model_name}': {e}")
 
-    async def __call__(self, input: List[str]) -> List[List[float]]: # Changed to 'input'
+    async def __call__(self, input: List[str]) -> List[List[float]]: 
         if not input: return []
         if not _FASTEMBED_LIB_AVAILABLE: raise RuntimeError("FastEmbed library not available.")
         

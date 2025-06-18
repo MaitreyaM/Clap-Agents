@@ -42,6 +42,7 @@ async def run_agile_team_with_mcp():
             task_description="Analyze the provided context (search results and addition result) and extract the main benefits. Also count the words in the addition result.",
             task_expected_output="A concise bullet-point list summarizing key benefits, and the word count.",
             tools=[count_words],
+            max_rounds=10
         )
         reporter = Agent(
             name="Report_Writer",

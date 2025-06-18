@@ -74,6 +74,7 @@ class Agent:
         mcp_server_names: Optional[List[str]] = None,
         vector_store: Optional[VectorStoreInterface] = None,
         parallel_tool_calls: bool = True , 
+        **kwargs
         # embedding_function: Optional[EmbeddingFunction] = None,
 
     ):
@@ -86,6 +87,7 @@ class Agent:
         self.local_tools = tools or [] 
 
         self.vector_store = vector_store
+        self.react_agent_kwargs = kwargs
         # self.embedding_function = embedding_function 
 
         llm_service_instance = llm_service or GroqService()
@@ -193,7 +195,7 @@ class Agent:
         self.task_description = original_task_description 
 
         print(f"Agent {self.name}: Running ReactAgent...")
-        raw_output = await self.react_agent.run(user_msg=msg) 
+        raw_output = await self.react_agent.run(user_msg=msg,**self.react_agent_kwargs) 
         output_data = {"output": raw_output}
 
         print(f"Agent {self.name}: Passing context to {len(self.dependents)} dependents...")

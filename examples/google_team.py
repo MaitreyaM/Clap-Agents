@@ -21,6 +21,7 @@ async def run_google_team():
             task_expected_output="A 3-item bullet list.",
             llm_service=google_llm_service,
             model=gemini_model,
+            max_rounds=10
             
         )
 
