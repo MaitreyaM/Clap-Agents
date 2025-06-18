@@ -1,4 +1,3 @@
-# examples/create_wallet.py
 from web3 import Account
 import secrets
 
