@@ -1,4 +1,3 @@
-# --- START OF FILE examples/qdrant_ingestion_test.py ---
 import asyncio
 import os
 import shutil
@@ -29,19 +28,16 @@ except ImportError:
 
 # --- Configuration ---
 load_dotenv()
-# !!! IMPORTANT: Update this path to your large PDF file !!!
-PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf" # Or the actual path to your PDF
+PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf" 
 # ---
-DB_BASE_PATH = "./qdrant_test_dbs" # Base directory for Qdrant DBs
+DB_BASE_PATH = "./qdrant_test_dbs" 
 COLLECTION_NAME_CUSTOM_EF = "ml_book_custom_ef"
 COLLECTION_NAME_FASTEMBED = "ml_book_fastembed"
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
-LLM_MODEL = "llama-3.3-70b-versatile" # Or your preferred model
+LLM_MODEL = "llama-3.3-70b-versatile" 
 
-# Qdrant's default fastembed model and its known dimension
-# (Ensure this matches the actual default or the one you want to test)
 QDRANT_INTERNAL_FASTEMBED_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 
 
@@ -63,7 +59,6 @@ async def perform_rag_cycle(
         return
 
         # --- Inside perform_rag_cycle in the example script ---
-    # Replace the old initialization block with this:
     try:
         qdrant_store = await QdrantStore.create(
             collection_name=collection_name,
@@ -120,7 +115,7 @@ async def perform_rag_cycle(
     print(f"\n--- RAG Query for '{collection_name}' ---")
     print(f"User Query: {user_query}")
 
-    rag_agent.task_description = user_query # Set the actual query
+    rag_agent.task_description = user_query 
     query_start_time = time.time()
     result = await rag_agent.run()
     query_duration = time.time() - query_start_time
@@ -131,7 +126,7 @@ async def perform_rag_cycle(
     print(result.get("output", "Agent failed to produce an answer."))
 
     # --- 7. Cleanup ---
-    await qdrant_store.close() # Important to close Qdrant, especially file-based
+    await qdrant_store.close() 
     cycle_duration = time.time() - cycle_start_time
     print(f"--- RAG Cycle for {collection_name} Took: {cycle_duration:.2f} seconds ---")
 
@@ -142,11 +137,9 @@ async def main():
     if not os.path.exists(PDF_PATH):
         print(f"ERROR: PDF file not found at '{PDF_PATH}'. Please update the PDF_PATH variable.")
         return
-    if not os.getenv("GROQ_API_KEY"): # Add check for GOOGLE_API_KEY if using Google LLM
+    if not os.getenv("GROQ_API_KEY"): 
          print("Warning: LLM API Key (e.g., GROQ_API_KEY) not found in environment variables.")
-         # return # Optionally exit if key is strictly needed
 
-    # --- Test Cycle 1: Custom EmbeddingFunctionInterface ---
     print("\n\n========== TEST 1: QDRANT WITH CUSTOM SentenceTransformerEmbeddings ==========")
     st_embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") # Default model
     db_path_custom_ef = os.path.join(DB_BASE_PATH, "custom_ef_db")
@@ -158,21 +151,17 @@ async def main():
         fastembed_model_to_use=None
     )
 
-    await asyncio.sleep(2) # Small pause
+    await asyncio.sleep(2) 
 
-    # --- Test Cycle 2: Qdrant WITH FastEmbed Wrapper ---
     print("\n\n========== TEST 2: QDRANT WITH FastEmbedEmbeddings WRAPPER ==========")
     try:
-        # Instantiate the wrapper
         fast_embed_ef = FastEmbedEmbeddings(model_name=QDRANT_INTERNAL_FASTEMBED_MODEL_NAME)
 
         db_path_fastembed = os.path.join(DB_BASE_PATH, "fastembed_via_wrapper_db")
         await perform_rag_cycle(
             db_path=db_path_fastembed,
-            collection_name=COLLECTION_NAME_FASTEMBED, # Can reuse name or make unique
-            # Pass the wrapper instance as the embedding_function
+            collection_name=COLLECTION_NAME_FASTEMBED, 
             embedding_function_instance=fast_embed_ef,
-            # These are now irrelevant as we provide the EF
             use_internal_fastembed_flag=False,
             fastembed_model_to_use=None
         )
@@ -181,8 +170,6 @@ async def main():
     except Exception as e:
          print(f"\nError during FastEmbed test cycle: {e}")
 
-# --- Main Execution ---
 if __name__ == "__main__":
     asyncio.run(main())
 
-# --- END OF FILE examples/qdrant_ingestion_test.py ---
