@@ -1,4 +1,3 @@
-# --- START OF FILE examples/complex_rag_mcp_team_test.py ---
 
 import asyncio
 import os
