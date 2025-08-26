@@ -3,7 +3,7 @@
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP()
-mcp.settings.port=8001
+#mcp.settings.port=8001
 
 @mcp.tool()
 def sub(a: int, b: int) -> int:
@@ -14,7 +14,7 @@ def sub(a: int, b: int) -> int:
     return result
 
 if __name__ == "__main__":
-    print("Starting minimal MCP server on http://localhost:8001/sse")
+    print("Starting minimal local MCP server")
     
-    mcp.run(transport='sse')
+    mcp.run(transport='stdio')
 

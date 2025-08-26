@@ -1,35 +1,69 @@
-
 import asyncio
 import json
 from contextlib import AsyncExitStack
 from typing import Any, Dict, List, Optional
+from enum import Enum 
 
-from pydantic import BaseModel, Field, HttpUrl 
+from pydantic import BaseModel, Field, HttpUrl , model_validator
+from colorama import Fore
 
 from mcp import ClientSession, types
 from mcp.client.sse import sse_client
-from colorama import Fore
+from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.stdio import stdio_client, StdioServerParameters
 
-class SseServerConfig(BaseModel):
-    """Configuration for connecting to an MCP server via SSE."""
-    url: HttpUrl = Field(description="The base URL of the MCP SSE server.")
+
+# Define an Enum for transport types for clarity and type safety
+class TransportType(str, Enum):
+    STREAMABLE_HTTP = "streamable_http"
+    SSE = "sse"
+    STDIO = 'stdio'
+
+# Rename SseServerConfig to ServerConfig and add the transport field
+class ServerConfig(BaseModel):
+    """Configuration for connecting to an MCP server."""
+    transport: TransportType = Field(
+        default=TransportType.STREAMABLE_HTTP,
+        description="The MCP transport to use."
+    )
+    # Fields for HTTP-based transports
+    url: Optional[HttpUrl] = Field(default=None, description="The base URL for HTTP/SSE based MCP servers.")
     headers: Optional[Dict[str, str]] = Field(default=None, description="Optional headers for the connection.")
+    
+    # Fields for STDIO transport
+    command: Optional[str] = Field(default=None, description="The command to execute for stdio-based servers.")
+    args: Optional[List[str]] = Field(default=None, description="A list of arguments for the command.")
 
+    @model_validator(mode='after')
+    def check_transport_params(self) -> 'ServerConfig':
+        """Ensures the correct parameters are provided for the chosen transport."""
+        if self.transport in [TransportType.STREAMABLE_HTTP, TransportType.SSE]:
+            if not self.url:
+                raise ValueError(f"'url' is required for '{self.transport.value}' transport")
+        elif self.transport == TransportType.STDIO:
+            if not self.command:
+                raise ValueError(f"'command' is required for '{self.transport.value}' transport")
+        
+        return self
+
+# Update the class docstring to be more generic
 class MCPClientManager:
     """
-    Manages connections and interactions with multiple MCP servers via SSE.
+    Manages connections and interactions with multiple MCP servers via supported
+    MCP transports (Streamable HTTP, SSE).
 
     Handles connecting, disconnecting, listing tools, and calling tools on
     configured MCP servers accessible over HTTP/S.
     """
 
-    def __init__(self, server_configs: Dict[str, SseServerConfig]):
+    # Update the __init__ method to use the new ServerConfig
+    def __init__(self, server_configs: Dict[str, ServerConfig]):
         """
-        Initializes the manager with SSE server configurations.
+        Initializes the manager with server configurations.
 
         Args:
             server_configs: A dictionary where keys are logical server names
-                            and values are SseServerConfig objects.
+                            and values are ServerConfig objects.
         """
         if not isinstance(server_configs, dict):
              raise TypeError("server_configs must be a dictionary.")
@@ -39,11 +73,11 @@ class MCPClientManager:
         self._connect_locks: Dict[str, asyncio.Lock] = {
              name: asyncio.Lock() for name in server_configs
         }
-        self._manager_lock = asyncio.Lock() 
+        self._manager_lock = asyncio.Lock()
 
     async def _ensure_connected(self, server_name: str):
         """
-        Ensures a connection via SSE to the specified server is active.
+        Ensures a connection to the specified server is active using the configured transport.
 
         Args:
             server_name: The logical name of the server to connect to.
@@ -67,43 +101,68 @@ class MCPClientManager:
             if not config:
                 raise ValueError(f"Configuration for server '{server_name}' not found.")
 
-            print(f"{Fore.YELLOW}Attempting to connect to MCP server via SSE: {server_name} at {config.url}{Fore.RESET}")
-
-            # Construct the specific SSE endpoint URL (often /sse)
-            sse_url = str(config.url).rstrip('/') + "/sse" 
-
             exit_stack = AsyncExitStack()
             try:
-                
-                sse_transport = await exit_stack.enter_async_context(
-                    sse_client(url=sse_url, headers=config.headers)
-                )
-                read_stream, write_stream = sse_transport
+                if config.transport == TransportType.STDIO:
+                    if not config.command:
+                        raise ValueError("Cannot connect to STDIO server without a 'command'.")
+                    
+                    print(f"{Fore.YELLOW}Attempting to connect to MCP server '{server_name}' using STDIO transport...{Fore.RESET}")
+                    print(f"  Command: {config.command} {' '.join(config.args or [])}")
 
-                
+                    server_params = StdioServerParameters(command=config.command, args=config.args or [])
+                    stdio_transport_streams = await exit_stack.enter_async_context(
+                        stdio_client(server_params)
+                    )
+                    read_stream, write_stream = stdio_transport_streams
+                    transport_name = "STDIO"
+                # Core logic change - branch based on the configured transport
+                elif config.transport == TransportType.STREAMABLE_HTTP:
+                    mcp_endpoint_url = str(config.url).rstrip('/')
+                    print(f"{Fore.YELLOW}Attempting to connect to MCP server '{server_name}' at {mcp_endpoint_url} using Streamable HTTP transport...{Fore.RESET}")
+
+                    # Use the new streamablehttp_client
+                    http_transport = await exit_stack.enter_async_context(
+                        streamablehttp_client(url=mcp_endpoint_url, headers=config.headers, auth=None)
+                    )
+                    # It returns three values; we only need the first two.
+                    read_stream, write_stream, _ = http_transport
+                    transport_name = "Streamable HTTP"
+
+                elif config.transport == TransportType.SSE:
+                    # This branch maintains backward compatibility
+                    sse_url = str(config.url).rstrip('/') + "/sse"
+                    print(f"{Fore.YELLOW}Attempting to connect to MCP server '{server_name}' at {sse_url} using legacy SSE transport...{Fore.RESET}")
+
+                    # Use the old sse_client
+                    sse_transport = await exit_stack.enter_async_context(
+                        sse_client(url=sse_url, headers=config.headers)
+                    )
+                    read_stream, write_stream = sse_transport
+                    transport_name = "legacy SSE"
+
+                else:
+                    raise ValueError(f"Unsupported transport type configured for server '{server_name}': {config.transport}")
+
                 session = await exit_stack.enter_async_context(
                     ClientSession(read_stream, write_stream)
                 )
 
-                
                 await session.initialize()
 
                 async with self._manager_lock:
                     self.sessions[server_name] = session
                     self.exit_stacks[server_name] = exit_stack
-                print(f"{Fore.GREEN}Successfully connected to MCP server via SSE: {server_name}{Fore.RESET}")
+                print(f"{Fore.GREEN}Successfully connected to MCP server '{server_name}' via {transport_name}{Fore.RESET}")
 
             except Exception as e:
                 await exit_stack.aclose()
-                print(f"{Fore.RED}Failed to connect to MCP server '{server_name}' via SSE: {e}{Fore.RESET}")
-                raise RuntimeError(f"SSE connection to '{server_name}' failed.") from e
+                print(f"{Fore.RED}Failed to connect to MCP server '{server_name}': {e}{Fore.RESET}")
+                raise RuntimeError(f"Connection to '{server_name}' failed.") from e
 
     async def disconnect(self, server_name: str):
         """
         Disconnects from a specific server and cleans up resources.
-
-        Args:
-            server_name: The logical name of the server to disconnect from.
         """
         async with self._manager_lock:
              if server_name in self.sessions:
@@ -113,7 +172,7 @@ class MCPClientManager:
                  await exit_stack.aclose()
                  print(f"{Fore.GREEN}Disconnected from MCP server: {server_name}{Fore.RESET}")
 
-        
+
     async def disconnect_all(self):
         server_names = list(self.sessions.keys())
         print(f"{Fore.YELLOW}MCPClientManager: Disconnecting from all servers ({len(server_names)})...{Fore.RESET}")
@@ -126,13 +185,7 @@ class MCPClientManager:
 
     async def list_remote_tools(self, server_name: str) -> List[types.Tool]:
         """
-        Lists tools available on a specific connected SSE server.
-
-        Args:
-            server_name: The logical name of the server.
-
-        Returns:
-            A list of mcp.types.Tool objects provided by the server.
+        Lists tools available on a specific connected server.
         """
         await self._ensure_connected(server_name)
         session = self.sessions.get(server_name)
@@ -152,15 +205,7 @@ class MCPClientManager:
         self, server_name: str, tool_name: str, arguments: Dict[str, Any]
     ) -> str:
         """
-        Calls a tool on a specific connected SSE server.
-
-        Args:
-            server_name: The logical name of the server.
-            tool_name: The name of the tool to call.
-            arguments: A dictionary of arguments for the tool.
-
-        Returns:
-            A string representation of the tool's result content.
+        Calls a tool on a specific connected server.
         """
         await self._ensure_connected(server_name)
         session = self.sessions.get(server_name)

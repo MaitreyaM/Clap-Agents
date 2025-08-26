@@ -1,4 +1,3 @@
-# --- START OF FILE examples/complex_rag_mcp_team_test.py ---
 
 import asyncio
 import os
@@ -179,4 +178,3 @@ async def run_complex_team():
 if __name__ == "__main__":
    
     asyncio.run(run_complex_team())
-

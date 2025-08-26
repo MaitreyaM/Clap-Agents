@@ -12,7 +12,7 @@ from .embedding.base_embedding import EmbeddingFunctionInterface
 
 from .vector_stores.base import VectorStoreInterface, QueryResult
 
-from .mcp_client.client import MCPClientManager, SseServerConfig
+from .mcp_client.client import MCPClientManager, ServerConfig, TransportType
 
 from .tools.web_search import duckduckgo_search
 
