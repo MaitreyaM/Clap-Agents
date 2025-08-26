@@ -28,6 +28,7 @@ except ImportError:
 
 load_dotenv()
 PDF_PATH = "/Users/maitreyamishra/PROJECTS/Cognitive-Layer/examples/Hands_On_ML.pdf" 
+# ---
 DB_BASE_PATH = "./qdrant_test_dbs" 
 COLLECTION_NAME_CUSTOM_EF = "ml_book_custom_ef"
 COLLECTION_NAME_FASTEMBED = "ml_book_fastembed"
@@ -170,3 +171,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
